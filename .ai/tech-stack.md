@@ -17,9 +17,12 @@
 - **Transport**: `URLSession` with async/await
 - **API**: TMDB REST v3
 
-## Architecture Pattern
+## Architecture
 
-Intentionally unspecified at this layer. The same data model, persistence layer, and service contracts are shared across three parallel implementations — MVVM, VIPER, and TCA — each living in its own branch. All architecture-specific wiring (view models, presenters, reducers, stores) is branch-local.
+TCA: single-purpose reducers, `Store`/`ViewStore` driving SwiftUI, effects for TMDB and persistence side effects, explicit navigation/state composition for multi-step flows.
+
+## Toolchain & deployment
+- Xcode 26.2  
 
 ## Testing
 
@@ -33,3 +36,15 @@ Intentionally unspecified at this layer. The same data model, persistence layer,
 ## Design System
 
 - Shared `DesignSystem` package providing fonts, colors, icons, spacing, and other UI tokens used across all three implementations
+
+## Internationalization
+Not included in this project scope.
+
+## Observability
+Not included in this project scope.
+
+## Security & privacy
+Not applicable for this sample application.
+
+## Other
+App extensions, widgets, universal links, and performance budgets: not applicable for this sample.
