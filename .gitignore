@@ -54,3 +54,7 @@ Icon
 *.swp
 *.swo
 .idea/
+
+# Python
+__pycache__/
+*.pyc
