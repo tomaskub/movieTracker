@@ -14,7 +14,7 @@
 | Architecture | VIPER |
 | Feature(s) covered | Cross-cutting |
 | Session number | 1 |
-| AI tool | <!-- Cursor + model name and version --> |
+| AI tool | Cursor CLI + sonnet 4.6 Thinking |
 | Session type | Feature generation |
 
 ---
@@ -74,42 +74,17 @@ Carefully review the prd and implementation plan:
 Your task is to implement the network layer following implementation_plan.md.
 ```
 @.ai/feature-network-layer/
-| Field | Value |
-                                                                                                                                              │|---|---|
-                                                                                                                                              │| Lines generated (approx.) | 395 |
-  can you run the tests using xcode build mcp or direct xcode build commands?                                                                 │| Lines retained after edits (approx.) | 394 |
 
 | Field | Value |
 |---|---|
 | Component targeted | Network layer |
 | Acceptance decision | Minor edit |
-| Correction type (if edited) | Build process |
+| Correction type (if edited) | Annotation only |
 | Lines generated (approx.) | 395 |
 | Lines retained after edits (approx.) | 394 |
 
 **Notes:**
 Only failure was adding a macos target for the package due to swift build requiring the macos target. This is not an issue when building with xcodebuild tools
-
-### Prompt 3
-
-**Prompt text (verbatim):**
-```
-<!-- paste exact prompt here -->
-```
-
-| Field | Value |
-|---|---|
-| Component targeted | |
-| Acceptance decision | |
-| Correction type (if edited) | |
-| Lines generated (approx.) | |
-| Lines retained after edits (approx.) | |
-
-**Notes:**
-
----
-
-<!-- Duplicate the prompt block above for each additional prompt -->
 
 ---
 
@@ -123,14 +98,14 @@ Classify the model the AI produced in its first-pass output:
 
 | Site | Covered this session | Model produced (first-pass) | Notes |
 |---|---|---|---|
-| TMDB API call (catalog, detail, search) | Y / N | | |
-| Genre list fetch (filter UI) | Y / N | | |
-| Watchlist write | Y / N | | |
-| Concurrent watchlist add (catalog + detail) | Y / N | | |
-| Search debounce | Y / N | | |
-| Review form submission (step 4) | Y / N | | |
-| SwiftData ModelContext access | Y / N | | |
-| Navigation path mutation | Y / N | | |
+| TMDB API call (catalog, detail, search) | Y | async/await | |
+| Genre list fetch (filter UI) | N | | |
+| Watchlist write | N | | |
+| Concurrent watchlist add (catalog + detail) | N | | |
+| Search debounce | N | | |
+| Review form submission (step 4) | N | | |
+| SwiftData ModelContext access | N | | |
+| Navigation path mutation | N | | |
 
 > **Rule:** This table is locked once recorded. If a correction later changes the model at a site, record the change in the Swift 6 migration session log, not here.
 
@@ -142,9 +117,18 @@ Complete only during test generation sessions. Mark entire section N/A if this s
 
 | Scenario # | Scenario description | Authorship | AI assertion quality |
 |---|---|---|---|
-| | | <!-- AI unprompted / AI prompted / Manual --> | <!-- Correct / Shallow / Incorrect / N/A --> |
-| | | | |
-| | | | |
+| 1 | test mock implementation on executing with expected result |  AI unprompted | Shallow |
+| 2 | test mock propagates network error | AI unprompted | Shallow |
+| 3 | test_execute_returnsDecodedResponse_on2xxWithValidJSON| AI unprompted | Correct |
+| 4 | test_execute_throwsServerError_on4xxResponse| AI unprompted | Correct |
+| 5 | test_execute_throwsServerError_on5xxResponse| AI unprompted | Correct |
+| 6 | test_execute_throwsNetworkUnavailable_onNotConnectedToInternet| AI unprompted | Correct  |
+| 7 | test_execute_throwsNetworkUnavailable_onNetworkConnectionLost| AI unprompted | Correct  |
+| 8 | test_execute_throwsServerError_onMalformedJSON| AI unprompted | Correct |
+| 9 | test_fetchImage_returnsData_on2xxWithBody| AI unprompted | Correct |
+| 10 | test_fetchImage_throwsServerError_onEmptyBody| AI unprompted | Correct |
+| 11 | test_execute_appendsApiKey_toEveryRequest| AI unprompted | Correct |
+| 12 | test_fetchImage_doesNotAppendApiKey| AI unprompted | Correct |
 
 Authorship definitions:
 - **AI unprompted** — AI generated the test without being explicitly asked
@@ -164,11 +148,10 @@ Record after each build attempt in this session.
 
 | Attempt | Result | Error count | Notes |
 |---|---|---|---|
-| 1 | Clean / Errors | | |
-| 2 | Clean / Errors | | |
-| 3 | Clean / Errors | | |
+| 1 | Clean | | |
+| 2 | Clean | | |
 
-Final build result this session: **Clean / Errors outstanding**
+Final build result this session: **Clean**
 
 Outstanding errors carried to next session (if any):
 -
@@ -179,14 +162,14 @@ Outstanding errors carried to next session (if any):
 
 | Metric | Value |
 |---|---|
-| Total prompts issued | |
-| Accepted as-is | |
-| Accepted with minor edits | |
-| Structurally rewritten | |
-| Rejected | |
-| Approx. lines generated | |
-| Approx. lines retained | |
-| Acceptance rate (retained / generated) | |
+| Total prompts issued | 2 |
+| Accepted as-is | 1 |
+| Accepted with minor edits | 1 |
+| Structurally rewritten | 0 |
+| Rejected | 0 |
+| Approx. lines generated | 624 |
+| Approx. lines retained | 623 |
+| Acceptance rate (retained / generated) | 99.8% |
 
 **Key observations:**
 <!-- Anything worth noting for the article — unexpected pattern choices, boilerplate volume, AI struggles with a specific layer, etc. -->
