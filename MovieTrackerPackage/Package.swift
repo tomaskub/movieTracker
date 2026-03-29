@@ -14,14 +14,26 @@ let package = Package(
         .library(
             name: "Networking",
             targets: ["Networking"]
+        ),
+        .library(
+            name: "TMDBClient",
+            targets: ["TMDBClient"]
         )
     ],
     targets: [
         .target(name: "DesignSystem"),
         .target(name: "Networking"),
+        .target(
+            name: "TMDBClient",
+            dependencies: ["Networking"]
+        ),
         .testTarget(
             name: "NetworkingTests",
             dependencies: ["Networking"]
+        ),
+        .testTarget(
+            name: "TMDBClientTests",
+            dependencies: ["TMDBClient", "Networking"]
         )
     ]
 )
