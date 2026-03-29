@@ -10,9 +10,18 @@ let package = Package(
         .library(
             name: "DesignSystem",
             targets: ["DesignSystem"]
+        ),
+        .library(
+            name: "Networking",
+            targets: ["Networking"]
         )
     ],
     targets: [
         .target(name: "DesignSystem"),
+        .target(name: "Networking"),
+        .testTarget(
+            name: "NetworkingTests",
+            dependencies: ["Networking"]
+        )
     ]
 )
