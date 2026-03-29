@@ -78,18 +78,17 @@ Your task is to implement the tmdb client following implementation_plan.md
 
 | Field | Value |
 |---|---|
-| Component targeted | <!-- e.g. Catalog/Interactor, Detail/ViewModel, Review/Router --> |
-| Acceptance decision | <!-- Accepted as-is / Minor edit / Structural rewrite / Rejected --> |
-| Correction type (if edited) | <!-- Annotation only / Logic correction / Structural rewrite / N/A --> |
-| Lines generated (approx.) | |
-| Lines retained after edits (approx.) | |
+| Component targeted | TMDBClient |
+| Acceptance decision | Accepted as-is |
+| Correction type (if edited) | N/A |
+| Lines generated (approx.) | 500 |
+| Lines retained after edits (approx.) | 500 |
 
 
 **Notes:**
-
+Implementation plan included note about prive DTOs. In current arch setup, they could be internal, and then retrieved with `@testable import`. The private structs constrained mock creation that was ultimately done by json decoding.
 ---
 
-<!-- Duplicate the prompt block above for each additional prompt -->
 
 ---
 
@@ -103,14 +102,14 @@ Classify the model the AI produced in its first-pass output:
 
 | Site | Covered this session | Model produced (first-pass) | Notes |
 |---|---|---|---|
-| TMDB API call (catalog, detail, search) | Y / N | | |
-| Genre list fetch (filter UI) | Y / N | | |
-| Watchlist write | Y / N | | |
-| Concurrent watchlist add (catalog + detail) | Y / N | | |
-| Search debounce | Y / N | | |
-| Review form submission (step 4) | Y / N | | |
-| SwiftData ModelContext access | Y / N | | |
-| Navigation path mutation | Y / N | | |
+| TMDB API call (catalog, detail, search) | Y | async/await | |
+| Genre list fetch (filter UI) | N | | |
+| Watchlist write | N | | |
+| Concurrent watchlist add (catalog + detail) | N | | |
+| Search debounce | N | | |
+| Review form submission (step 4) | N | | |
+| SwiftData ModelContext access | N | | |
+| Navigation path mutation | N | | |
 
 > **Rule:** This table is locked once recorded. If a correction later changes the model at a site, record the change in the Swift 6 migration session log, not here.
 
@@ -122,9 +121,28 @@ Complete only during test generation sessions. Mark entire section N/A if this s
 
 | Scenario # | Scenario description | Authorship | AI assertion quality |
 |---|---|---|---|
-| | | <!-- AI unprompted / AI prompted / Manual --> | <!-- Correct / Shallow / Incorrect / N/A --> |
-| | | | |
-| | | | |
+| 1 | test_fetchGenres_returnsGenres_onSuccess | AI unprompted | Correct |
+| 2 | test_fetchGenres_throwsServerError_onFailure | AI unprompted | Correct |
+| 3 |test_fetchGenres_usesCorrectEndpoint | AI unprompted | Correct |
+| 4 | test_fetchImage_medium_usesMediumSizeVariant | AI unprompted | Correct |
+| 5 | test_fetchImage_original_usesOriginalSizeVariant | AI unprompted | Correct |
+| 6 | test_fetchImage_returnsData_onSuccess | AI unprompted | Correct |
+| 7 | test_fetchImage_throwsNetworkUnavailable_onNetworkError | AI unprompted | Correct |
+| 8 | test_fetchImage_throwsServerError_onServerError | AI unprompted | Correct |
+| 9 | test_fetchImage_thumbnail_usesThumbnailSizeVariant | AI unprompted | Correct |
+| 10 | test_fetchMovieCredits_returnsCastSortedByOrder | AI unprompted | Correct |
+| 11 | test_fetchMovieCredits_throwsNetworkUnavailable_onNetworkError | AI unprompted | Correct |
+| 12 | test_fetchMovieCredits_usesCorrectEndpoint | AI unprompted | Correct |
+| 13| test_fetchMovieDetail_returnsMovieDetail_onSuccess | AI unprompted | Correct |
+| 14| test_fetchMovieDetail_throwsServerError_onFailure | AI unprompted | Correct |
+| 15| test_fetchMovieDetail_usesCorrectEndpoint | AI unprompted | Correct |
+| 16 | test_fetchTrendingMovies_returnsMovies_onSuccess | AI unprompted | Correct |
+| 17| test_fetchTrendingMovies_throwsNetworkUnavailable_onNetworkError | AI unprompted | Correct |
+| 18| test_fetchTrendingMovies_throwsServerError_onServerError | AI unprompted | Correct |
+| 19| test_fetchTrendingMovies_usesCorrectEndpoint | AI unprompted | Correct |
+| 20| test_searchMovies_passesQueryInRequest | AI unprompted | Correct |
+| 21| test_searchMovies_returnsMovies_onSuccess | AI unprompted | Correct |
+| 22| test_searchMovies_throwsServerError_onFailure | AI unprompted | Correct |
 
 Authorship definitions:
 - **AI unprompted** — AI generated the test without being explicitly asked
@@ -144,11 +162,9 @@ Record after each build attempt in this session.
 
 | Attempt | Result | Error count | Notes |
 |---|---|---|---|
-| 1 | Clean / Errors | | |
-| 2 | Clean / Errors | | |
-| 3 | Clean / Errors | | |
+| 2 | Clean | | |
 
-Final build result this session: **Clean / Errors outstanding**
+Final build result this session: **Clean**
 
 Outstanding errors carried to next session (if any):
 -
@@ -159,14 +175,14 @@ Outstanding errors carried to next session (if any):
 
 | Metric | Value |
 |---|---|
-| Total prompts issued | |
-| Accepted as-is | |
-| Accepted with minor edits | |
-| Structurally rewritten | |
-| Rejected | |
-| Approx. lines generated | |
-| Approx. lines retained | |
-| Acceptance rate (retained / generated) | |
+| Total prompts issued | 2 |
+| Accepted as-is | 1 |
+| Accepted with minor edits | 1 |
+| Structurally rewritten | 0 |
+| Rejected | 0 |
+| Approx. lines generated | 844 |
+| Approx. lines retained | 844 |
+| Acceptance rate (retained / generated) | 100.0% |
 
 **Key observations:**
 <!-- Anything worth noting for the article — unexpected pattern choices, boilerplate volume, AI struggles with a specific layer, etc. -->
