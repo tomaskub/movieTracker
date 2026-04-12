@@ -49,7 +49,7 @@ The concrete implementation (`DefaultReviewRepository`) consumes a narrow `Revie
 |---|---|---|
 | `PersistenceKit` | `ReviewStoring` (service-module protocol) | `insert`, `update`, `fetch` (by `movieId`), `delete` over `ReviewEntity` DTOs; `PersistenceError` error surface |
 
-`ReviewStoring` is defined in the service module so that `PersistenceKit` is absent from the `ReviewRepository` protocol and all test targets:
+`ReviewStoring` is defined in the service module and operates on `ReviewEntity` DTOs — the public bridge type vended by `PersistenceKit`. `DefaultReviewRepository` performs the `Review` ↔ `ReviewEntity` mapping (including `[ReviewTag]` ↔ `[String]`) before and after calling this protocol, keeping all domain mapping in the service layer:
 
 ```swift
 protocol ReviewStoring {
@@ -60,7 +60,7 @@ protocol ReviewStoring {
 }
 ```
 
-`ReviewEntity` is a DTO type defined inside `PersistenceKit`. The `ReviewRepository` protocol carries no import of `PersistenceKit`. Test targets inject a fake `ReviewStoring` conformer with no `PersistenceKit` dependency.
+`SwiftDataReviewStore` is a thin conformer that passes `ReviewEntity` values directly to `EntityStore<ReviewEntity>` with no additional mapping. The `ReviewRepository` protocol carries no import of `PersistenceKit`.
 
 The Networking framework has no role in this service; reviews are fully offline.
 
@@ -72,7 +72,7 @@ The Networking framework has no role in this service; reviews are fully offline.
 |---|---|---|
 | Rating validation | On both `create` and `update`, `rating` must be in the range 1–5 inclusive. Checked before any store interaction. | `ReviewRepositoryError.invalidRating` |
 | Duplicate guard on create | No pre-fetch guard. The concrete repo attempts insert and catches `PersistenceError.duplicateEntry` from `@Attribute(.unique)` on `movieId`. | `ReviewRepositoryError.alreadyExists` |
-| Tag conversion | `[ReviewTag]` received from callers is mapped to `[String]` raw values before `ReviewStoring`. `[String]` from fetched `ReviewEntity` is mapped back via `compactMap` before returning. | — |
+| Tag conversion | `[ReviewTag]` → `[String]` on write and `[String]` → `[ReviewTag]` on read are performed inline in `DefaultReviewRepository` as part of the `Review` ↔ `ReviewEntity` mapping. | — |
 | `createdAt` on create | Both `createdAt` and `updatedAt` are stamped with `Date()` at insert time. | — |
 | `updatedAt` on update | `updatedAt` is stamped with `Date()` before writing the entity to the store. | — |
 | Unconditional delete | `delete(movieId:)` issues the store delete without a prior existence check. | `ReviewRepositoryError.deleteFailed(Error)` |
@@ -94,7 +94,8 @@ protocol ReviewRepository {
 **`Review` domain struct** (defined in `DomainModels`):
 
 ```swift
-struct Review: Equatable, Sendable {
+struct Review: Equatable, Hashable, Identifiable, Sendable {
+    var id: Int { movieId }
     let movieId: Int
     let rating: Int
     let tags: [ReviewTag]
@@ -122,34 +123,30 @@ struct Review: Equatable, Sendable {
 
 ## 7. Data Transformation & Mapping
 
-Two mapping boundaries, both handled inline in `DefaultReviewRepository`:
+Two mapping boundaries, both handled inline in `DefaultReviewRepository`. No dedicated mapper type.
 
-**`[ReviewTag]` → `[String]`** (on `create` / `update`):
+### Boundary 1 — `Movie` inputs → `ReviewEntity` (on `create` / `update`)
 
-```swift
-let rawTags = tags.map(\.rawValue)
-```
+`DefaultReviewRepository` constructs a `ReviewEntity` from caller-supplied domain values before passing it to `ReviewStoring`:
 
-**`[String]` → `[ReviewTag]`** (on `fetch` / `contains`):
+- `createdAt`: `Date()` at insert time (create path only)
+- `updatedAt`: `Date()` at every write
+- `tags`: `[ReviewTag]` → `[String]` via `map(\.rawValue)`
 
-```swift
-let tags = entity.tags.compactMap(ReviewTag.init(rawValue:))
-```
+### Boundary 2 — `Review` ↔ `ReviewEntity` (service layer)
 
-**`ReviewEntity` → `Review` domain struct** (on `fetch`):
+Performed inline in `DefaultReviewRepository`. `SwiftDataReviewStore` receives and returns `ReviewEntity` values with no additional mapping.
 
-| `ReviewEntity` field | `Review` field | Transformation |
+| `Review` field | `ReviewEntity` field | Transformation |
 |---|---|---|
 | `movieId: Int` | `movieId` | Direct |
 | `rating: Int` | `rating` | Direct |
-| `tags: [String]` | `tags: [ReviewTag]` | `compactMap(ReviewTag.init(rawValue:))` |
+| `tags: [ReviewTag]` | `tags: [String]` | `map(\.rawValue)` on write; `compactMap(ReviewTag.init(rawValue:))` on read |
 | `notes: String` | `notes` | Direct |
 | `createdAt: Date` | `createdAt` | Direct |
 | `updatedAt: Date` | `updatedAt` | Direct |
 
-Domain inputs → `ReviewEntity` on `create`/`update` is the inverse; `createdAt`/`updatedAt` are stamped with `Date()` at the concrete-repo boundary.
-
-No dedicated mapper type is warranted. The mapping is a one-liner `compactMap` for tags and direct field assignment for all other properties. `DomainModels` has no dependency on `PersistenceKit`; `PersistenceKit` has no dependency on `DomainModels`.
+`DomainModels` has no dependency on `PersistenceKit`; `PersistenceKit` has no dependency on `DomainModels`.
 
 ---
 

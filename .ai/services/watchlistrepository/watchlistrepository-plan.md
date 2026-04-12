@@ -40,9 +40,9 @@ The same protocol and concrete implementation are shared across all three archit
 
 | Framework | Protocol consumed | What is required |
 |---|---|---|
-| `PersistenceKit` | `WatchlistEntryStoring` (narrow service-module protocol) | `insert`, `fetch` (with predicate), `delete` operations over `WatchlistEntry` domain structs; `PersistenceError` error surface |
+| `PersistenceKit` | `WatchlistEntryStoring` (narrow service-module protocol) | `insert`, `fetch` (with predicate), `delete` operations over `WatchlistEntryEntity` DTOs; `PersistenceError` error surface |
 
-`WatchlistRepository` protocol has **no import of `PersistenceKit`**. The concrete implementation depends on `WatchlistEntryStoring`, whose production conformer (`SwiftDataWatchlistEntryStore`) wraps `EntityStore<WatchlistEntryEntity>` internally.
+`WatchlistRepository` protocol has **no import of `PersistenceKit`**. The concrete `DefaultWatchlistRepository` maps `WatchlistEntry` ↔ `WatchlistEntryEntity` before calling `WatchlistEntryStoring`, keeping all domain mapping inside the service layer. `WatchlistEntryEntity` is a public type vended by `PersistenceKit`.
 
 `NetworkingKit` is **not a dependency** — all operations are local.
 
@@ -50,13 +50,13 @@ The same protocol and concrete implementation are shared across all three archit
 
 ```swift
 protocol WatchlistEntryStoring {
-    func insert(_ entry: WatchlistEntry) throws
-    func fetch(predicate: Predicate<WatchlistEntry>?) throws -> [WatchlistEntry]
+    func insert(_ entry: WatchlistEntryEntity) throws
+    func fetch(predicate: Predicate<WatchlistEntryEntity>?) throws -> [WatchlistEntryEntity]
     func delete(movieId: Int) throws
 }
 ```
 
-This protocol is defined in the service module. It operates entirely on `WatchlistEntry` domain structs. No `PersistenceKit` type appears in its definition, keeping `PersistenceKit` absent from the `WatchlistRepository` protocol and all test targets.
+This protocol is defined in the service module. It operates on `WatchlistEntryEntity` DTOs — the public bridge type vended by `PersistenceKit`. `DefaultWatchlistRepository` performs the `WatchlistEntry` ↔ `WatchlistEntryEntity` mapping before and after calling this protocol, so no domain mapping logic leaks into `SwiftDataWatchlistEntryStore` or test doubles.
 
 ---
 
@@ -138,11 +138,20 @@ Performed inline in the concrete `WatchlistRepository`:
 
 No dedicated mapper type. Complexity is a single date-parsing expression — a one-liner using `Calendar` and `DateFormatter` or ISO8601DateFormatter.
 
-### Boundary 2 — `WatchlistEntry` ↔ `WatchlistEntryEntity` (PersistenceKit boundary)
+### Boundary 2 — `WatchlistEntry` ↔ `WatchlistEntryEntity` (service layer)
 
-`WatchlistEntryStoring`'s production conformer (`SwiftDataWatchlistEntryStore`) holds an `EntityStore<WatchlistEntryEntity>` internally and maps field-for-field inline. This keeps `PersistenceKit` entirely absent from the `WatchlistRepository` protocol and test targets.
+Performed inline in `DefaultWatchlistRepository` before insert and after fetch. No dedicated mapper type.
 
-`WatchlistEntry` domain struct from `DomainModels` is the shared type. The SwiftData `@Model` class (`WatchlistEntryModel`) and entity DTO (`WatchlistEntryEntity`) are strictly internal to `PersistenceKit`.
+| `WatchlistEntry` field | `WatchlistEntryEntity` field | Transformation |
+|---|---|---|
+| `movieId` | `movieId` | Direct |
+| `title` | `title` | Direct |
+| `releaseYear` | `releaseYear` | Direct |
+| `voteAverage` | `voteAverage` | Direct |
+| `posterPath` | `posterPath` | Direct |
+| `dateAdded` | `dateAdded` | Direct |
+
+`SwiftDataWatchlistEntryStore` is a thin conformer — it passes `WatchlistEntryEntity` values directly to `EntityStore<WatchlistEntryEntity>` with no additional mapping. The `WatchlistEntryModel` ↔ `WatchlistEntryEntity` conversion is owned by `PersistenceKit` via `SwiftDataMappable`.
 
 ---
 
