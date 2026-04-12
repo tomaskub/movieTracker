@@ -103,57 +103,81 @@ All SwiftData operations run on `@MainActor`. No background `ModelContext` is us
 
 ---
 
-### 2.7 `WatchlistEntry` (`@Model`)
+### 2.7 `WatchlistEntry`
 
 | Property | Type | Notes |
 |---|---|---|
-| `movieId` | `Int` | `@Attribute(.unique)`; TMDB integer id |
+| `movieId` | `Int` | TMDB integer id |
 | `title` | `String` | Snapshot at time of add |
 | `releaseYear` | `Int` | Derived from `releaseDate` before insert |
 | `voteAverage` | `Double` | Snapshot at time of add |
 | `posterPath` | `String?` | Relative path; image re-fetched from network |
 | `dateAdded` | `Date` | Set at insert time |
 
-- **Swift type**: `class` (required by SwiftData `@Model`)
-- **Protocol conformances**: implicit `Observable` via `@Model`
-- **Role**: Persistent record of user intent to watch a movie. Powers the Watchlist tab entirely offline. Snapshot fields enable list-card display without a network call.
+- **Swift type**: `struct`
+- **Protocol conformances**: `Equatable`, `Hashable`, `Identifiable` (`id: Int` mapping to `movieId`), `Sendable`
+- **Role**: Domain type in the `DomainModels` target. Vended to callers by the service layer after mapping from `WatchlistEntryEntity`. Snapshot fields enable list-card display without a network call. Never directly annotated with `@Model`; the internal `WatchlistEntryModel` inside `PersistenceKit` is the SwiftData representation.
 
 ---
 
-### 2.8 `Review` (`@Model`)
+### 2.8 `Review`
 
 | Property | Type | Notes |
 |---|---|---|
-| `movieId` | `Int` | `@Attribute(.unique)`; TMDB integer id |
+| `movieId` | `Int` | TMDB integer id |
 | `rating` | `Int` | Range 1–5; validated at service layer |
 | `tags` | `[String]` | Raw `ReviewTag` string values |
 | `notes` | `String` | Empty string allowed; non-optional |
 | `createdAt` | `Date` | Set at initial insert |
 | `updatedAt` | `Date` | Updated on every edit |
 
-- **Swift type**: `class` (required by SwiftData `@Model`)
-- **Protocol conformances**: implicit `Observable` via `@Model`
-- **Role**: Persistent log of a user's opinion of a movie. At most one per `movieId`, enforced at both the store level (`@Attribute(.unique)`) and the service layer. Surfaced read-only on Movie Detail; created and edited via the four-step wizard.
+- **Swift type**: `struct`
+- **Protocol conformances**: `Equatable`, `Hashable`, `Identifiable` (`id: Int` mapping to `movieId`), `Sendable`
+- **Role**: Domain type in the `DomainModels` target. Vended to callers by the service layer after mapping from `ReviewEntity`. At most one per `movieId`, enforced at the store level via `@Attribute(.unique)` on `ReviewModel.movieId` and at the service layer. Surfaced read-only on Movie Detail; created and edited via the four-step wizard. Never directly annotated with `@Model`; the internal `ReviewModel` inside `PersistenceKit` is the SwiftData representation.
 
 ---
 
 ## 3. Persistence Models
 
-Both SwiftData `@Model` classes are their own persistence representation; no separate DTO or mapped counterpart exists.
+All persistence internals are strictly contained within `PersistenceKit`. Three layers exist inside the module: internal `@Model` classes, internal entity DTOs, and an internal mapping protocol. Nothing in this section crosses the `PersistenceKit` module boundary.
 
-### 3.1 `WatchlistEntry`
+### 3.1 Internal `@Model` classes
 
-- **SwiftData annotation**: `@Model`
-- **Unique constraint**: `@Attribute(.unique)` on `movieId`
-- **Store**: on-disk SQLite (production), in-memory (tests)
-- **Differs from domain**: none — the class is used directly as the display model for Watchlist list cards
-
-### 3.2 `Review`
+#### `WatchlistEntryModel` (internal)
 
 - **SwiftData annotation**: `@Model`
 - **Unique constraint**: `@Attribute(.unique)` on `movieId`
 - **Store**: on-disk SQLite (production), in-memory (tests)
-- **Differs from domain**: `tags` is `[String]` rather than `[ReviewTag]`; conversion is performed at the repo/service boundary
+- **Visibility**: strictly internal to `PersistenceKit`; never vended to service-layer or UI callers
+
+#### `ReviewModel` (internal)
+
+- **SwiftData annotation**: `@Model`
+- **Unique constraint**: `@Attribute(.unique)` on `movieId`
+- **Store**: on-disk SQLite (production), in-memory (tests)
+- **Visibility**: strictly internal to `PersistenceKit`; never vended to service-layer or UI callers
+
+### 3.2 Internal entity DTOs
+
+#### `WatchlistEntryEntity` (internal)
+
+- **Conforms to**: `PersistableEntity` (`Identifiable`, `Equatable`)
+- **Role**: Crosses the in-module boundary between `WatchlistEntryModel` and `EntityStore<WatchlistEntryEntity>` callers (service-layer repositories). Is the type that parameterises `EntityStore<T>` and `EntityQuery<T>` for watchlist operations.
+- **Visibility**: internal to `PersistenceKit`; the service layer receives and operates on this type when calling `EntityStore` methods, before mapping it to the `WatchlistEntry` domain type.
+
+#### `ReviewEntity` (internal)
+
+- **Conforms to**: `PersistableEntity` (`Identifiable`, `Equatable`)
+- **Role**: Crosses the in-module boundary between `ReviewModel` and `EntityStore<ReviewEntity>` callers (service-layer repositories). Is the type that parameterises `EntityStore<T>` and `EntityQuery<T>` for review operations.
+- **Visibility**: internal to `PersistenceKit`; the service layer receives and operates on this type when calling `EntityStore` methods, before mapping it to the `Review` domain type.
+
+### 3.3 Internal mapping protocol
+
+#### `SwiftDataMappable` (internal)
+
+- **Kind**: protocol (internal to `PersistenceKit`)
+- **Purpose**: Bidirectional conversion between an internal `@Model` class and its corresponding entity DTO. Implemented by `WatchlistEntryModel` and `ReviewModel`.
+- **Direction**: `@Model` → entity DTO (on fetch), entity DTO → `@Model` (on insert/update)
 
 ---
 
@@ -169,15 +193,29 @@ No other relationships exist. All API-sourced types are in-memory only and have 
 
 ## 5. Domain-to-Persistence Boundary
 
-**Decision**: No explicit mapping layer.
+Two explicit mapping layers exist. No SwiftData type (`@Model`, `ModelContext`, `FetchDescriptor`) crosses the `PersistenceKit` module boundary at any point.
 
-`WatchlistEntry` and `Review` serve directly as display models for the screens that consume them (Watchlist tab cards, Movie Detail review summary). Their attribute sets match display needs without transformation.
+### Layer 1 — PersistenceKit-internal: `SwiftDataMappable`
 
-The sole conversion at the boundary is `[String]` ↔ `[ReviewTag]` for `Review.tags`, which is handled inline at the repo layer (a one-line `compactMap`), not a dedicated mapper type.
+`SwiftDataMappable` performs bidirectional conversion between the internal `@Model` classes and the internal entity DTOs:
 
-API-sourced types (`Movie`, `Genre`, `CastMember`) never enter SwiftData. They are decoded, used, and released within the network/service layer. `MovieDetail` is assembled in memory by the service layer and never crosses the persistence boundary.
+- `WatchlistEntryModel` ↔ `WatchlistEntryEntity`
+- `ReviewModel` ↔ `ReviewEntity`
 
-The **repo layer** owns all `ModelContext` interactions. It exposes a typed, SwiftData-free interface to callers (service/use-case layer and above), wrapping all SwiftData errors into typed domain errors. This decouples the MVVM, VIPER, and TCA branches from SwiftData internals entirely.
+This mapping is invisible to all callers outside `PersistenceKit`. The concrete `SwiftDataEntityStore<T>` uses it internally on every fetch (model → entity) and every insert/update (entity → model).
+
+### Layer 2 — Service layer: entity DTO ↔ domain type
+
+Service-layer repository implementations receive entity DTOs from `EntityStore<T>` and map them to `DomainModels` types before returning results to callers:
+
+- `WatchlistEntryEntity` → `WatchlistEntry`
+- `ReviewEntity` → `Review`
+
+The `[String]` ↔ `[ReviewTag]` conversion for `Review.tags` lives within this service-layer mapping step (a one-line `compactMap`), not in a dedicated mapper type.
+
+### API-sourced types
+
+`Movie`, `Genre`, `CastMember`, and `MovieDetail` never enter SwiftData. They are decoded, used, and released within the network/service layer. `MovieDetail` is assembled in memory by the service layer and never crosses the persistence boundary.
 
 ---
 
@@ -197,7 +235,7 @@ The `ModelContainer` is constructed with the versioned schema (see §10) and inj
 Both `@Model` classes are registered together in a single `ModelContainer`:
 
 ```
-ModelContainer(for: WatchlistEntry.self, Review.self, ...)
+ModelContainer(for: WatchlistEntryModel.self, ReviewModel.self, ...)
 ```
 
 No multi-store or shared group container configuration is required.
@@ -206,14 +244,16 @@ No multi-store or shared group container configuration is required.
 
 ## 7. Fetch and Query Strategy
 
-| Entity | Fetch Pattern | Sort | Indexes |
+Service-layer repositories construct `EntityQuery<T>` values and pass them to `EntityStore<T>.fetch(_:)`. No `FetchDescriptor`, `@Model` field reference, or `#Predicate` against a SwiftData model type appears outside `PersistenceKit`.
+
+| Entity DTO | Fetch Pattern | Sort | Indexes |
 |---|---|---|---|
-| `WatchlistEntry` | Full fetch of all records (no predicate) | In-memory, after fetch: `dateAdded` desc (default), `title` asc, `voteAverage` desc | `@Attribute(.unique)` on `movieId` serves as implicit index for membership checks |
-| `Review` | Single-record predicate: `#Predicate { $0.movieId == id }` | N/A — at most one result | `@Attribute(.unique)` on `movieId` |
+| `WatchlistEntryEntity` | `EntityQuery` with no predicate — fetches all records | In-memory, after fetch: `dateAdded` desc (default), `title` asc, `voteAverage` desc | `@Attribute(.unique)` on `WatchlistEntryModel.movieId` serves as implicit index for membership checks |
+| `ReviewEntity` | `EntityQuery` with predicate filtering by `movieId` | N/A — at most one result | `@Attribute(.unique)` on `ReviewModel.movieId` |
 
 - **Pagination**: not applicable for local data; datasets are user-bounded personal lists
 - **Lazy-loading**: not used; all records are fetched eagerly on screen appearance
-- **No `@Query` macro with predicate in SwiftUI views for `Review`**: the repo layer issues `FetchDescriptor`-based fetches, keeping persistence details out of views
+- **No `@Query` macro with predicate in SwiftUI views for `Review`**: repositories issue `EntityQuery`-based fetches via `EntityStore<T>`, keeping all persistence details inside `PersistenceKit`
 
 ---
 
