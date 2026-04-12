@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-Movie Tracker requires two on-disk persistence models (`WatchlistEntry`, `Review`) backed by SwiftData, and three in-memory-only domain types (`Movie`, `Genre`, `CastMember`) decoded from the TMDB REST API. A composed in-memory type (`MovieDetail`) aggregates the detail-screen payload. A `ReviewTag` enum provides type-safe access to the fixed predefined tag vocabulary in the UI and wizard layers, while `Review.tags` is stored as `[String]` in the SwiftData model.
+Movie Tracker requires two on-disk persistence models (`WatchlistEntry`, `Review`) backed by SwiftData, and three in-memory-only domain types (`Movie`, `Genre`, `CastMember`) decoded from the TMDB REST API. A composed in-memory type (`MovieDetail`) aggregates the detail-screen payload, with cast retrieval state expressed via the `CastState` enum. A `ReviewTag` enum provides type-safe access to the fixed predefined tag vocabulary in the UI and wizard layers, while `Review.tags` is stored as `[String]` in the SwiftData model.
 
 All SwiftData operations run on `@MainActor`. No background `ModelContext` is used. A `ModelContainer` factory accepts a store type parameter to switch between on-disk (production) and in-memory (tests) configurations. The same data layer is shared across the MVVM, VIPER, and TCA branches.
 
@@ -50,25 +50,38 @@ All SwiftData operations run on `@MainActor`. No background `ModelContext` is us
 
 - **Swift type**: `struct`
 - **Protocol conformances**: `Codable`, `Equatable`, `Sendable`
-- **Role**: Decoded from `/movie/{id}/credits`; top three by billing order surfaced on Movie Detail. Never persisted. Absence (failed request) is a non-fatal state.
+- **Role**: Decoded from `/movie/{id}/credits`. Never persisted. Surfaced via `CastState.loaded` on `MovieDetail`; the consumer is responsible for slicing to the desired display count.
 
 ---
 
-### 2.4 `MovieDetail`
+### 2.4 `CastState`
+
+| Case | Associated value | Notes |
+|---|---|---|
+| `.notRetrieved` | — | Credits have not been fetched yet, or the fetch failed |
+| `.loaded` | `[CastMember]` | Full cast list as returned by the credits endpoint; consumer is responsible for slicing to the desired display count |
+
+- **Swift type**: `enum`
+- **Protocol conformances**: `Equatable`, `Sendable`
+- **Role**: Makes the retrieval state of cast data explicit at the type level on `MovieDetail`. Replaces the prior `[CastMember]` convention where an empty array was overloaded to mean both "no cast members" and "credits not yet fetched or failed".
+
+---
+
+### 2.5 `MovieDetail`
 
 | Property | Type | Notes |
 |---|---|---|
 | `movie` | `Movie` | Base movie fields from `/movie/{id}` |
 | `genres` | `[Genre]` | Full genre objects returned in the detail endpoint |
-| `cast` | `[CastMember]` | Top three; may be empty if credits request failed |
+| `cast` | `CastState` | `.notRetrieved` until credits are fetched; `.loaded([CastMember])` on success |
 
 - **Swift type**: `struct`
 - **Protocol conformances**: `Equatable`, `Sendable`
-- **Role**: Composed in memory from the `/movie/{id}` response (which returns full genre objects) and the optional `/movie/{id}/credits` response. Used exclusively in the Movie Detail screen. Not decoded directly from a single JSON payload; assembled by the service layer after both requests resolve.
+- **Role**: Composed in memory from the `/movie/{id}` response (which returns full genre objects) and the optional `/movie/{id}/credits` response. Used exclusively in the Movie Detail screen. Not decoded directly from a single JSON payload; assembled by the service layer. `cast` starts as `.notRetrieved` and is updated to `.loaded` by the caller once the credits request resolves.
 
 ---
 
-### 2.5 `ReviewTag`
+### 2.6 `ReviewTag`
 
 | Case | Raw value (`String`) |
 |---|---|
@@ -90,7 +103,7 @@ All SwiftData operations run on `@MainActor`. No background `ModelContext` is us
 
 ---
 
-### 2.6 `WatchlistEntry` (`@Model`)
+### 2.7 `WatchlistEntry` (`@Model`)
 
 | Property | Type | Notes |
 |---|---|---|
@@ -107,7 +120,7 @@ All SwiftData operations run on `@MainActor`. No background `ModelContext` is us
 
 ---
 
-### 2.7 `Review` (`@Model`)
+### 2.8 `Review` (`@Model`)
 
 | Property | Type | Notes |
 |---|---|---|
