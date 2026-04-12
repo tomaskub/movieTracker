@@ -61,6 +61,8 @@
 
 Feature planning sessions may begin after steps 1–6 are complete, as all features depend on at least one of the services above.
 
+After all feature plans are complete, the app bootstrap contract — SPM target dependency graph, service construction order, and `@main` invariants — is documented in `.ai/app-bootstrap/planning-summary.md`. This is not a separate planning session; it is a reference document consumed by each branch's implementation.
+
 ---
 
 ## 4. PRD Coverage Check
@@ -111,8 +113,9 @@ No uncovered requirements identified.
 
 ### Navigation Structure (Tab Bar, Detail Push)
 - **Classification:** UI scaffolding — tab bar root, NavigationStack/modal presentation — with no business logic.
-- **Decision:** Belongs in the UI scaffolding plan and the feature layer of each variant. Not a framework or service concern.
+- **Decision:** Belongs in the UI scaffolding plan and the feature layer of each variant. Not a framework or service concern. Navigation is feature-owned: each feature module holds its own `NavigationStack` path state, and features that navigate to another feature declare it as a direct SPM target dependency. No standalone navigation framework or shared navigation target exists.
 - **Owning layer:** UI scaffolding / feature layers.
+- **Composition root:** The `@main` app target is the sole site where services are constructed and feature root views are assembled into the `TabView`. This is not a framework layer — it lives in each branch's app target. The composition root contract is documented in `.ai/app-bootstrap/planning-summary.md`.
 
 ---
 

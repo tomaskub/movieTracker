@@ -23,9 +23,9 @@ The navigation skeleton is a three-tab `TabView` (Catalog, Search, Watchlist) wh
 
 ## 3. Root Navigation Structure
 
-The root container is a `TabView` with three tabs in order: **Catalog**, **Search**, **Watchlist**. Tab items use `.tabItem` labels with SF Symbol icons provided by the DesignSystem package. Catalog is always the selected tab on cold launch; the selected tab index is not persisted.
+The root container is a `TabView` with three tabs in order: **Catalog**, **Search**, **Watchlist**. Tab items use `.tabItem` labels with SF Symbol icons sourced from the DesignSystem package. Tab item configuration (SF Symbol name and label string) is owned by each feature module as public constants; the app target reads these values when assembling the `TabView`. Catalog is always the selected tab on cold launch; the selected tab index is not persisted.
 
-Each tab owns an independent `NavigationStack`. This means back-navigation state is preserved per tab when the user switches between tabs during a session.
+Each tab owns an independent `NavigationStack`. Navigation path state is owned directly by each feature's root view layer (ViewModel for MVVM, Router for VIPER, reducer `StackState` for TCA) — it is never lifted to the app target. This means back-navigation state is preserved per tab when the user switches between tabs during a session.
 
 ```
 TabView
