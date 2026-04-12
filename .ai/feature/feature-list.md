@@ -76,6 +76,8 @@ All service and framework layers are already planned. Feature planning proceeds 
 4. **MovieDetail** — depends on `TMDBClient`, `WatchlistRepository`, `ReviewRepository`; widest service footprint; provides the entry point (`MovieDetailView`) from which `ReviewWizard` is launched.
 5. **ReviewWizard** — depends on `ReviewRepository`; planned after `MovieDetail` because `MovieDetailView` is the sole entry point.
 
+The app bootstrap contract — SPM target dependency graph, service construction order, and `@main` invariants shared across all three branches — is documented in `.ai/app-bootstrap/planning-summary.md`. Refer to this document before beginning any branch implementation.
+
 ---
 
 ## 4. PRD Coverage Check
@@ -129,6 +131,15 @@ No UNCOVERED requirements.
 | `ReviewWizardView` | ReviewWizard | `.fullScreenCover` from `MovieDetailView` |
 
 All 8 screens have unambiguous single-feature ownership. No screen is shared across feature boundaries at the ownership level. `MovieDetailView` is logically reached from three tabs but is instantiated within each tab's own `NavigationStack` — it belongs to MovieDetail, not to Catalog, Search, or Watchlist.
+
+**SPM target dependency graph:**
+```
+CatalogFeature  ──► MovieDetailFeature ──► ReviewFeature
+SearchFeature   ──►        │
+WatchlistFeature ──►       │
+                           └── (ReviewFeature has no further feature dependencies)
+```
+Each tab feature declares `MovieDetailFeature` as an explicit SPM target dependency. `MovieDetailFeature` declares `ReviewFeature`. Tab features reference `MovieDetailView` via its concrete type (`MovieDetailView(movieId:)`); `MovieDetailFeature` references `ReviewWizardView` via its concrete type.
 
 ---
 

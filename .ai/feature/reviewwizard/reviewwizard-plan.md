@@ -41,6 +41,8 @@ The ReviewWizard feature lets a user create or update their single personal revi
 
 **Boundary justification**: The wizard is a short-lived modal whose only durable output is a completed or abandoned review write. All repository-level invariants (uniqueness, rating range, tag conversion) belong in `ReviewRepository`. `MovieDetailView` owns the cover lifecycle since it already manages both the "Log a Review" / "Edit Review" CTAs and the post-dismiss refresh, keeping the wizard entirely ignorant of the detail screen's state.
 
+**SPM target**: `ReviewFeature` is a separate Swift Package Manager target. It is declared as a direct dependency by `MovieDetailFeature` only. It has no outbound feature dependencies.
+
 ---
 
 ## 3. Service Dependencies

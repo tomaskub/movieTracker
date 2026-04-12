@@ -26,7 +26,8 @@ The Search feature allows the user to find movies by text query against the TMDB
 | `MovieDetailView` and all screens below it | MovieDetail feature |
 | `MovieCardView` reusable card component | Shared UI package |
 | `EmptyStateView`, `ErrorStateView` | Shared UI package |
-| Poster image loading and caching | Display layer / platform image views |
+| Poster placeholder visual | Shared `MovieCardView` (renders its own placeholder image when `.placeholder` state is provided) |
+| Poster image display-level caching | Platform URL session cache (opportunistic); no explicit cache management in this feature |
 | TMDB API key handling and network transport | Networking framework + build configuration |
 | Filter and sort persistence across launches | Explicitly excluded by PRD |
 | VoiceOver accessibility | Deferred — explicitly out of scope for MVP |
@@ -180,6 +181,8 @@ toYear: String                // empty = no constraint
 
 ## 6. Navigation & Routing
 
+**SPM target:** `SearchFeature` is a separate Swift Package Manager target. It declares `MovieDetailFeature` as a direct dependency. `MovieDetailView` is referenced via its concrete type: `MovieDetailView(movieId:)`.
+
 **Entry point:** `SearchListView` is the root destination of the Search tab's `NavigationStack`. The tab is reached by tapping the Search tab item in the root `TabView`.
 
 **Internal navigation graph:**
@@ -259,7 +262,7 @@ No confirmation dialogs exist within the Search feature. There are no destructiv
 |---|---|
 | `.idle` | `EmptyStateView` with "Search for a movie" prompt |
 | `.loading` | Shared loading indicator component in results area; search field and filter/sort triggers remain accessible |
-| `.results(all:filtered:)` where `filtered` is non-empty | `List` / `ScrollView` of `MovieCardView` rows using `.thumbnail` poster size; `.scrollDismissesKeyboard(.immediately)` applied |
+| `.results(all:filtered:)` where `filtered` is non-empty | `List` / `ScrollView` of `MovieCardView` rows; the feature provides `MovieCardView.ImageState` (`.image(Image)` or `.placeholder`) to each card; `.scrollDismissesKeyboard(.immediately)` applied |
 | `.empty(.noMatches)` | `EmptyStateView` — "No movies found for [query]"; no retry affordance |
 | `.empty(.filtersEliminated)` | `EmptyStateView` — "No results match your active filters" + inline "Clear Filters" shortcut that resets `activeFilters` to defaults and recomputes `filtered` |
 | `.error(TMDBError, query:)` | `ErrorStateView` — inline error message + retry button that re-issues `fetchSearch` with `lastSubmittedQuery` |
@@ -376,7 +379,7 @@ No analytics events are defined in the PRD for the Search feature. No events are
 | Analytics event tracking | Not defined in PRD |
 | Pagination beyond first TMDB page | Explicitly excluded by PRD |
 | Persisting filter and sort preferences across launches | Explicitly excluded by PRD |
-| Poster image caching | Not required by PRD; handled at display layer |
+| Poster image display-level caching beyond URL session | Not required by PRD for MVP |
 | Sending filter parameters to TMDB API | PRD scopes to first page only; client-side filtering is the specified approach |
 | Debounce / live search | Explicit submit model chosen in planning; no debounce required |
 

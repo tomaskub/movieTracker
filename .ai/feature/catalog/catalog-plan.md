@@ -27,7 +27,8 @@ The feature is a single-screen vertical slice: `CatalogListView`. It owns its ow
 |---|---|
 | Sort and filter controls | Not applicable; PRD explicitly excludes them from Catalog (US-026) |
 | `MovieCardView` layout and rendering | Shared UI package (consumed as a black box) |
-| Poster image loading and display-level caching | Shared UI package / each implementation's image loading component |
+| Poster placeholder visual | Shared `MovieCardView` (renders its own placeholder image when `.placeholder` state is provided) |
+| Poster image display-level caching | Platform URL session cache (opportunistic); no explicit cache management in this feature |
 | `MovieDetailView` | MovieDetail feature |
 | Watchlist and review state | Watchlist / Review features |
 | Tab icon and label (SF Symbol name) | DesignSystem / implementation plan |
@@ -108,6 +109,7 @@ The `.idle` phase exists only briefly at cold launch. It is distinct from `.fail
 
 ## 6. Navigation & Routing
 
+- **SPM target**: `CatalogFeature` is a separate Swift Package Manager target. It declares `MovieDetailFeature` as a direct dependency. `MovieDetailView` is referenced via its concrete type: `MovieDetailView(movieId:)`.
 - **Entry point**: `CatalogListView` is the root destination of the Catalog tab. It is the selected tab on cold launch.
 - **Owned navigation stack**: the Catalog feature owns its `NavigationPath` (TCA `StackState`, VIPER Router-observable path, or equivalent). This state is local to the feature and session-scoped; it is empty on cold launch and resets on process restart.
 - **Internal navigation graph**: single push level — `CatalogListView` → `MovieDetailView(movieId:)`.
@@ -155,7 +157,7 @@ No confirmation dialogs. No destructive actions. No keyboard interaction.
 
 **No optimistic updates.** **No stale-data-alongside-error display.**
 
-**Card-level placeholder**: while the poster image URL resolves, the poster area and all text fields in `MovieCardView` show a static gray fill. If `posterPath` is `nil`, the poster area permanently shows a static gray fill (no image will arrive). No shimmer animation is used.
+**Card-level poster state**: the Catalog feature presentation layer is responsible for providing `MovieCardView.ImageState` to each `MovieCardView`. When `posterPath` is `nil`, `.placeholder` is passed immediately and `MovieCardView` renders its own placeholder image. When `posterPath` is non-nil, the feature constructs the TMDB poster URL and loads the image asynchronously; `.placeholder` is passed until the image is available, at which point `.image(Image)` is passed. No shimmer animation is used.
 
 **Retry behavior**: tapping retry immediately transitions `Phase` to `.loading` for instant visual feedback, then dispatches a new `fetchTrending()` call.
 

@@ -114,6 +114,10 @@ reviewState:    .loading | .hasReview(Review) | .noReview | .error(String)
 
 ## 6. Navigation & Routing
 
+### SPM Target
+
+`MovieDetailFeature` is a separate Swift Package Manager target. It is declared as a direct dependency by `CatalogFeature`, `SearchFeature`, and `WatchlistFeature` individually. It declares `ReviewFeature` as its own direct dependency. `ReviewWizardView` is referenced via its concrete type.
+
 ### Entry Point
 
 `MovieDetailView` is pushed onto the active tab's `NavigationStack` when the user taps a movie card in Catalog, Search, or Watchlist. It receives a single input: `movieId: Int`. No other data is passed at the navigation boundary.

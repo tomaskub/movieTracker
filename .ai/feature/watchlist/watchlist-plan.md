@@ -24,7 +24,7 @@ This feature maps to PRD §3.5 (Watchlist tab), US-012, US-013, US-014, and US-0
 |---|---|
 | Adding or removing watchlist entries | MovieDetail feature (only surface for mutation) |
 | Swipe-to-delete on list rows | Deferred post-MVP |
-| Poster URL construction from `posterPath` | Shared `MovieCardView` via `TMDBClient.fetchPosterData` |
+| Poster placeholder visual | Shared `MovieCardView` (renders its own placeholder image when `.placeholder` state is provided) |
 | Reactive observation streams | Post-MVP; `onAppear` re-fetch is the MVP strategy |
 | Review indicators on list cards | Explicitly excluded — PRD US-038 |
 | Tab badge for watchlist entry count | Explicitly excluded |
@@ -40,7 +40,7 @@ This feature maps to PRD §3.5 (Watchlist tab), US-012, US-013, US-014, and US-0
 |---|---|---|
 | `WatchlistRepository` | `fetchAll(sortOrder: WatchlistSortOrder?) throws -> [WatchlistEntry]` | Load all watchlist entries, optionally sorted, from local SwiftData |
 
-No other service protocol is consumed. `ReviewRepository` and `TMDBClientProtocol` are not direct dependencies of this feature. Network access is not required for listing — all `WatchlistEntry` fields are snapshots captured at add time. Poster images are loaded asynchronously by the shared `MovieCardView` component using the `posterPath` field.
+No other service protocol is consumed. `ReviewRepository` and `TMDBClientProtocol` are not direct dependencies of this feature. Network access is not required for listing — all `WatchlistEntry` fields are snapshots captured at add time. The presentation layer is responsible for constructing the TMDB poster URL from each entry's `posterPath` and providing `MovieCardView.ImageState` (`.image(Image)` or `.placeholder`) to each `MovieCardView`.
 
 ### `WatchlistSortOrder` values
 
@@ -127,6 +127,10 @@ The currently active sort option is shown as highlighted/selected when the sheet
 ---
 
 ## 6. Navigation & Routing
+
+### SPM Target
+
+`WatchlistFeature` is a separate Swift Package Manager target. It declares `MovieDetailFeature` as a direct dependency. `MovieDetailView` is referenced via its concrete type: `MovieDetailView(movieId:)`.
 
 ### Entry Point
 
@@ -266,7 +270,7 @@ Not applicable — no mutations occur within this feature. Swipe-to-delete (whic
 
 ### Poster Images
 
-Poster images are loaded from TMDB CDN URLs at the `MovieCardView` level. `WatchlistListView` passes the `WatchlistEntry` (which contains `posterPath: String?`) to each `MovieCardView`. The card component calls `TMDBClient.fetchPosterData(posterPath:size:)` using the `.thumbnail` size case. Connectivity is not required for list data — only for images, which degrade gracefully to a placeholder when unavailable.
+The Watchlist feature presentation layer is responsible for providing poster image state to each `MovieCardView`. For each `WatchlistEntry`, the presentation layer constructs the TMDB poster URL from `posterPath` and loads the image asynchronously. The loaded image is passed to `MovieCardView` as `MovieCardView.ImageState.image(Image)`. When `posterPath` is `nil` or image loading fails, `MovieCardView.ImageState.placeholder` is passed instead, and `MovieCardView` renders its own built-in placeholder image. List data display does not depend on image loading — posters degrade gracefully to the placeholder without affecting the list layout.
 
 ### Deep Links
 
