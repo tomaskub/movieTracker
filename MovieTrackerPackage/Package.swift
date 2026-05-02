@@ -7,21 +7,20 @@ let package = Package(
     name: "MovieTrackerPackage",
     platforms: [.iOS(.v17)],
     products: [
-        .library(
-            name: "DesignSystem",
-            targets: ["DesignSystem"]
-        ),
-        .library(
-            name: "Networking",
-            targets: ["Networking"]
-        ),
+        .library(name: "DesignSystem", targets: ["DesignSystem"]),
+        .library(name: "Networking", targets: ["Networking"]),
+        .library(name: "DomainModels", targets: ["DomainModels"]),
+        .library(name: "PersistenceKit", targets: ["PersistenceKit"]),
     ],
     targets: [
         .target(name: "DesignSystem"),
         .target(name: "Networking"),
-        .testTarget(
-            name: "NetworkingTests",
-            dependencies: ["Networking"]
+        .target(name: "DomainModels"),
+        .target(
+            name: "PersistenceKit",
+            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
         ),
+        .testTarget(name: "NetworkingTests", dependencies: ["Networking"]),
+        .testTarget(name: "PersistenceKitTests", dependencies: ["PersistenceKit"]),
     ]
 )
