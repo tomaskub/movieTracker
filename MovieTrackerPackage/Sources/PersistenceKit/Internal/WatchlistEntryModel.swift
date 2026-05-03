@@ -49,4 +49,12 @@ extension WatchlistEntryModel: SwiftDataMappable {
             dateAdded: entity.dateAdded
         )
     }
+
+    func update(from entity: WatchlistEntryEntity) {
+        title = entity.title
+        releaseYear = entity.releaseYear
+        voteAverage = entity.voteAverage
+        posterPath = entity.posterPath
+        dateAdded = entity.dateAdded
+    }
 }

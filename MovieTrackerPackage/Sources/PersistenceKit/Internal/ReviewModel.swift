@@ -49,4 +49,11 @@ extension ReviewModel: SwiftDataMappable {
             updatedAt: entity.updatedAt
         )
     }
+
+    func update(from entity: ReviewEntity) {
+        rating = entity.rating
+        tags = entity.tags
+        notes = entity.notes
+        updatedAt = entity.updatedAt
+    }
 }
