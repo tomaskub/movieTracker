@@ -58,16 +58,6 @@
                ReferencedContainer = "container:MovieTrackerPackage">
             </BuildableReference>
          </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "SharedUIComponentsTests"
-               BuildableName = "SharedUIComponentsTests"
-               BlueprintName = "SharedUIComponentsTests"
-               ReferencedContainer = "container:MovieTrackerPackage">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
