@@ -13,7 +13,7 @@ public enum PosterSize: Sendable {
     }
 }
 
-public enum TMDBError: Error, Sendable {
+public enum TMDBError: Error, Equatable, Sendable {
     case offline
     case networkFailure
     case invalidRequest

@@ -68,17 +68,18 @@ Your task is to generate tests for TMDB client. Tests should thoroughly tests al
 
 | Field | Value |
 |---|---|
-| Component targeted | |
-| Acceptance decision | |
-| Correction type (if edited) | |
-| Lines generated (approx.) | |
-| Lines retained after edits (approx.) | |
+| Component targeted | TMDBClient service |
+| Acceptance decision | Accepted as-is |
+| Correction type (if edited) |  N/A |
+| Lines generated (approx.) | 423 |
+| Lines retained after edits (approx.) | 423 |
 
 **Notes:**
-
----
-
-<!-- Duplicate the prompt block above for each additional prompt -->
+- Test package not included in overall testing scheme - this had to be added manually
+- Very high level of coverage, with 31 tests
+- Created mock for `HTTPClient` in test package
+- Error translation tests are done independently of the call, following code structure inside `TMDBClient`
+- On failure path for fetchPosterData, with partial testing of the possible path. 
 
 ---
 
@@ -92,7 +93,7 @@ Classify the model the AI produced in its first-pass output:
 
 | Site | Covered this session | Model produced (first-pass) | Notes |
 |---|---|---|---|
-| TMDB API call (catalog, detail, search) | Y / N | | |
+| TMDB API call (catalog, detail, search) | Y | async/await | |
 | Genre list fetch (filter UI) | Y / N | | |
 | Watchlist write | Y / N | | |
 | Concurrent watchlist add (catalog + detail) | Y / N | | |
@@ -111,9 +112,37 @@ Complete only during test generation sessions. Mark entire section N/A if this s
 
 | Scenario # | Scenario description | Authorship | AI assertion quality |
 |---|---|---|---|
-| | | <!-- AI unprompted / AI prompted / Manual --> | <!-- Correct / Shallow / Incorrect / N/A --> |
-| | | | |
-| | | | |
+| 1 | test_networkError_noConnectivity_mapsToOffline  | AI prompted | Correct |
+| 2 | test_networkError_serverError_mapsToNetworkFailure | AI prompted | Correct |
+| 3 | test_networkError_transportError_mapsToNetworkFailure | AI prompted | Correct |
+| 4 | test_networkError_decodingError_mapsToNetworkFailure | AI prompted | Correct |
+| 5 | test_fetchTrending_usesCorrectPath | AI prompted | Correct |
+| 6 | test_fetchTrending_returnsDecodedMovies | AI prompted | Correct |
+| 7 | test_fetchSearch_usesCorrectPath | AI prompted | Correct |
+| 8 | test_fetchSearch_includesQueryItemInRequest | AI prompted | Correct |
+| 9 | test_fetchSearch_returnsDecodedMovies | AI prompted | Correct |
+| 10 | test_fetchMovie_usesCorrectPath | AI prompted | Correct |
+| 11 | test_fetchMovie_returnsCastAsNotRetrieved | AI prompted | Correct |
+| 12 | test_fetchMovie_populatesGenresOnDetail | AI prompted | Correct |
+| 13 | test_fetchMovie_mapsGenreIdsFromGenreObjects | AI prompted | Correct |
+| 14 | test_fetchMovie_mapsCoreFields | AI prompted | Correct |
+| 15 | test_fetchCredits_usesCorrectPath | AI prompted | Correct |
+| 16 | test_fetchCredits_returnsDecodedCastArray | AI prompted | Correct |
+| 17 | test_fetchGenres_usesCorrectPath | AI prompted | Correct |
+| 18 | test_fetchGenres_returnsDecodedGenres | AI prompted | Correct |
+| 19 | test_fetchGenres_secondCall_returnsCachedValue_withoutNewRequest | AI prompted | Correct |
+| 20 | test_fetchGenres_forceTrue_bypassesCache_andDispatchesNewRequest | AI prompted | Correct |
+| 21 | test_fetchGenres_forceTrue_updatesCache_forSubsequentRequests | AI prompted | Correct |
+| 22 | test_fetchGenres_emptyResponse_doesNotOverwriteExistingCache | AI prompted | Correct |
+| 23 | test_fetchGenres_failedFetch_doesNotOverwriteExistingCache | AI prompted | Correct |
+| 24 | test_fetchPosterData_movie_thumbnail_constructsW185URL | AI prompted | Correct |
+| 25 | test_fetchPosterData_movie_full_constructsW500URL | AI prompted | Correct |
+| 26 | test_fetchPosterData_movie_nilPosterPath_throwsNetworkFailure | AI prompted | Correct |
+| 27 | test_fetchPosterData_movie_returnsImageData | AI prompted | Correct |
+| 28 | test_fetchPosterData_posterPath_constructsCorrectURL | AI prompted | Correct |
+| 29 | test_fetchPosterData_posterPath_returnsImageData | AI prompted | Correct |
+| 30 | test_fetchPosterData_posterPath_noConnectivity_mapsToOffline | AI prompted | Correct |
+| 31 | test_fetchPosterData_posterPath_serverError_mapsToNetworkFailure | AI prompted | Correct |
 
 Authorship definitions:
 - **AI unprompted** — AI generated the test without being explicitly asked
@@ -133,11 +162,9 @@ Record after each build attempt in this session.
 
 | Attempt | Result | Error count | Notes |
 |---|---|---|---|
-| 1 | Clean / Errors | | |
-| 2 | Clean / Errors | | |
-| 3 | Clean / Errors | | |
+| 1 | Clean | | |
 
-Final build result this session: **Clean / Errors outstanding**
+Final build result this session: **Clean**
 
 Outstanding errors carried to next session (if any):
 -
@@ -148,14 +175,15 @@ Outstanding errors carried to next session (if any):
 
 | Metric | Value |
 |---|---|
-| Total prompts issued | |
-| Accepted as-is | |
-| Accepted with minor edits | |
-| Structurally rewritten | |
-| Rejected | |
-| Approx. lines generated | |
-| Approx. lines retained | |
-| Acceptance rate (retained / generated) | |
+| Total prompts issued | 2 |
+| Accepted as-is | 2 |
+| Accepted with minor edits | 0 |
+| Structurally rewritten | 0 |
+| Rejected | 0 |
+| Approx. lines generated | 600 |
+| Approx. lines retained | 600 |
+| Acceptance rate (retained / generated) | 100.0% |
 
 **Key observations:**
-<!-- Anything worth noting for the article — unexpected pattern choices, boilerplate volume, AI struggles with a specific layer, etc. -->
+- The spec did not have any testing specified. The model had to be reprompted to add testing, which seems more comprehensive than before. Mostly driven by code coverage. 
+- The testing targets are not automatically added to test scheme for the main app target.
