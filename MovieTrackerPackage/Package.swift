@@ -11,6 +11,7 @@ let package = Package(
         .library(name: "Networking", targets: ["Networking"]),
         .library(name: "DomainModels", targets: ["DomainModels"]),
         .library(name: "PersistenceKit", targets: ["PersistenceKit"]),
+        .library(name: "SharedUIComponents", targets: ["SharedUIComponents"]),
     ],
     targets: [
         .target(name: "DesignSystem"),
@@ -20,7 +21,12 @@ let package = Package(
             name: "PersistenceKit",
             swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
         ),
+        .target(
+            name: "SharedUIComponents",
+            dependencies: ["DesignSystem"]
+        ),
         .testTarget(name: "NetworkingTests", dependencies: ["Networking"]),
         .testTarget(name: "PersistenceKitTests", dependencies: ["PersistenceKit"]),
+        .testTarget(name: "SharedUIComponentsTests", dependencies: ["SharedUIComponents"]),
     ]
 )
