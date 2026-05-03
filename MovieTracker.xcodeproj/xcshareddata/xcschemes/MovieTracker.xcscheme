@@ -48,6 +48,16 @@
                ReferencedContainer = "container:MovieTrackerPackage">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "PersistenceKitTests"
+               BuildableName = "PersistenceKitTests.xctest"
+               BlueprintName = "PersistenceKitTests"
+               ReferencedContainer = "container:MovieTrackerPackage">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

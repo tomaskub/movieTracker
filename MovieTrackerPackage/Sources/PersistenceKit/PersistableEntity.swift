@@ -1,1 +1,1 @@
-public protocol PersistableEntity: Identifiable, Equatable {}
+public protocol PersistableEntity: Identifiable, Equatable, Sendable {}
