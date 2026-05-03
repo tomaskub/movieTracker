@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		D6E79C5F2F7848F500CB6C42 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = D6E79C5E2F7848F500CB6C42 /* DesignSystem */; };
+		D6E79C602F7848F500CB6C42 /* SharedUIComponents in Frameworks */ = {isa = PBXBuildFile; productRef = D6E79C612F7848F500CB6C42 /* SharedUIComponents */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,6 +59,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D6E79C5F2F7848F500CB6C42 /* DesignSystem in Frameworks */,
+				D6E79C602F7848F500CB6C42 /* SharedUIComponents in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -128,6 +130,7 @@
 			name = MovieTracker;
 			packageProductDependencies = (
 				D6E79C5E2F7848F500CB6C42 /* DesignSystem */,
+				D6E79C612F7848F500CB6C42 /* SharedUIComponents */,
 			);
 			productName = MovieTracker;
 			productReference = D604EE942F7847C40042CF38 /* MovieTracker.app */;
@@ -609,6 +612,10 @@
 		D6E79C5E2F7848F500CB6C42 /* DesignSystem */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = DesignSystem;
+		};
+		D6E79C612F7848F500CB6C42 /* SharedUIComponents */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SharedUIComponents;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
