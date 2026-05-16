@@ -78,6 +78,16 @@
                ReferencedContainer = "container:MovieTrackerPackage">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "ReviewRepositoryTests"
+               BuildableName = "ReviewRepositoryTests"
+               BlueprintName = "ReviewRepositoryTests"
+               ReferencedContainer = "container:MovieTrackerPackage">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

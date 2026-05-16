@@ -13,6 +13,7 @@ let package = Package(
         .library(name: "PersistenceKit", targets: ["PersistenceKit"]),
         .library(name: "SharedUIComponents", targets: ["SharedUIComponents"]),
         .library(name: "TMDBClient", targets: ["TMDBClient"]),
+        .library(name: "ReviewRepository", targets: ["ReviewRepository"]),
     ],
     targets: [
         .target(name: "DesignSystem"),
@@ -30,9 +31,14 @@ let package = Package(
             name: "TMDBClient",
             dependencies: ["Networking", "DomainModels"]
         ),
+        .target(
+            name: "ReviewRepository",
+            dependencies: ["DomainModels", "PersistenceKit"]
+        ),
         .testTarget(name: "NetworkingTests", dependencies: ["Networking"]),
         .testTarget(name: "PersistenceKitTests", dependencies: ["PersistenceKit"]),
         .testTarget(name: "SharedUIComponentsTests", dependencies: ["SharedUIComponents"]),
         .testTarget(name: "TMDBClientTests", dependencies: ["TMDBClient", "Networking", "DomainModels"]),
+        .testTarget(name: "ReviewRepositoryTests", dependencies: ["ReviewRepository"]),
     ]
 )
