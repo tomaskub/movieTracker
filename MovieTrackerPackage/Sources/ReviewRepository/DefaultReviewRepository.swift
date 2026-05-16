@@ -6,7 +6,7 @@ import PersistenceKit
 public final class DefaultReviewRepository: ReviewRepository {
     private let store: ReviewStoring
 
-    public init(store: ReviewStoring) {
+    init(store: ReviewStoring) {
         self.store = store
     }
 
@@ -36,12 +36,23 @@ public final class DefaultReviewRepository: ReviewRepository {
         guard (1...5).contains(rating) else {
             throw ReviewRepositoryError.invalidRating
         }
+        let existing: ReviewEntity
+        do {
+            guard let found = try store.fetch(movieId: movieId) else {
+                throw ReviewRepositoryError.notFound
+            }
+            existing = found
+        } catch ReviewRepositoryError.notFound {
+            throw ReviewRepositoryError.notFound
+        } catch {
+            throw ReviewRepositoryError.fetchFailed(error)
+        }
         let entity = ReviewEntity(
             movieId: movieId,
             rating: rating,
             tags: tags.map(\.rawValue),
             notes: notes,
-            createdAt: Date(),
+            createdAt: existing.createdAt,
             updatedAt: Date()
         )
         do {
