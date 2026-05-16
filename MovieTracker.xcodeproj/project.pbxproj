@@ -11,6 +11,7 @@
 		D6E79C602F7848F500CB6C42 /* SharedUIComponents in Frameworks */ = {isa = PBXBuildFile; productRef = D6E79C612F7848F500CB6C42 /* SharedUIComponents */; };
 		D6E79C682F7848F600CB6C42 /* PersistenceKit in Frameworks */ = {isa = PBXBuildFile; productRef = D6E79C692F7848F600CB6C42 /* PersistenceKit */; };
 		D6E79C6A2F7848F600CB6C42 /* ReviewRepository in Frameworks */ = {isa = PBXBuildFile; productRef = D6E79C6B2F7848F600CB6C42 /* ReviewRepository */; };
+		D6E79C6C2F7848F600CB6C42 /* WatchlistRepository in Frameworks */ = {isa = PBXBuildFile; productRef = D6E79C6D2F7848F600CB6C42 /* WatchlistRepository */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +65,7 @@
 				D6E79C602F7848F500CB6C42 /* SharedUIComponents in Frameworks */,
 				D6E79C682F7848F600CB6C42 /* PersistenceKit in Frameworks */,
 				D6E79C6A2F7848F600CB6C42 /* ReviewRepository in Frameworks */,
+				D6E79C6C2F7848F600CB6C42 /* WatchlistRepository in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -137,6 +139,7 @@
 				D6E79C612F7848F500CB6C42 /* SharedUIComponents */,
 				D6E79C692F7848F600CB6C42 /* PersistenceKit */,
 				D6E79C6B2F7848F600CB6C42 /* ReviewRepository */,
+				D6E79C6D2F7848F600CB6C42 /* WatchlistRepository */,
 			);
 			productName = MovieTracker;
 			productReference = D604EE942F7847C40042CF38 /* MovieTracker.app */;
@@ -630,6 +633,10 @@
 		D6E79C6B2F7848F600CB6C42 /* ReviewRepository */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ReviewRepository;
+		};
+		D6E79C6D2F7848F600CB6C42 /* WatchlistRepository */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = WatchlistRepository;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
