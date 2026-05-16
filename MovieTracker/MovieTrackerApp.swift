@@ -1,52 +1,41 @@
-//
-//  MovieTrackerApp.swift
-//  MovieTracker
-//
-//  Created by Tomasz Kubiak on 28/03/2026.
-//
-
+import Networking
 import PersistenceKit
 import ReviewRepository
 import SwiftData
 import SwiftUI
+import TMDBClient
 import WatchlistRepository
 
 @main
 struct MovieTrackerApp: App {
     private let modelContainer: ModelContainer
+    private let tmdbClient: TMDBClient
+    private let watchlistRepository: DefaultWatchlistRepository
+    private let reviewRepository: DefaultReviewRepository
 
     init() {
         do {
             modelContainer = try ModelContainerProvider.makeContainer(storeType: .persistent)
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            fatalError("ModelContainer could not be created: \(error)")
         }
+        let apiKey = Bundle.main.object(forInfoDictionaryKey: "TMDBAPIKey") as? String ?? ""
+        let baseURL = URL(string: Bundle.main.object(forInfoDictionaryKey: "TMDBBaseURL") as? String ?? "")!
+        let httpClient = URLSessionHTTPClient(
+            configuration: NetworkConfiguration(baseURL: baseURL, apiKey: apiKey)
+        )
+        tmdbClient = TMDBClient(httpClient: httpClient)
+        watchlistRepository = DefaultWatchlistRepository.make(
+            entityStore: ModelContainerProvider.makeWatchlistEntryStore(container: modelContainer)
+        )
+        reviewRepository = DefaultReviewRepository.make(
+            entityStore: ModelContainerProvider.makeReviewStore(container: modelContainer)
+        )
     }
 
     var body: some Scene {
         WindowGroup {
-            MovieTrackerRootView(modelContainer: modelContainer)
+            Text("MovieTracker")
         }
-        .modelContainer(modelContainer)
-    }
-}
-
-private struct MovieTrackerRootView: View {
-    private let reviewRepository: DefaultReviewRepository
-    private let watchlistRepository: DefaultWatchlistRepository
-
-    init(modelContainer: ModelContainer) {
-        reviewRepository = DefaultReviewRepository.make(
-            entityStore: ModelContainerProvider.makeReviewStore(container: modelContainer)
-        )
-        watchlistRepository = DefaultWatchlistRepository.make(
-            entityStore: ModelContainerProvider.makeWatchlistEntryStore(container: modelContainer)
-        )
-    }
-
-    var body: some View {
-        ContentView()
-            .environment(\.reviewRepository, reviewRepository)
-            .environment(\.watchlistRepository, watchlistRepository)
     }
 }
