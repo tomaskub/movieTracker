@@ -9,6 +9,7 @@ import PersistenceKit
 import ReviewRepository
 import SwiftData
 import SwiftUI
+import WatchlistRepository
 
 @main
 struct MovieTrackerApp: App {
@@ -32,15 +33,20 @@ struct MovieTrackerApp: App {
 
 private struct MovieTrackerRootView: View {
     private let reviewRepository: DefaultReviewRepository
+    private let watchlistRepository: DefaultWatchlistRepository
 
     init(modelContainer: ModelContainer) {
         reviewRepository = DefaultReviewRepository.make(
             entityStore: ModelContainerProvider.makeReviewStore(container: modelContainer)
+        )
+        watchlistRepository = DefaultWatchlistRepository.make(
+            entityStore: ModelContainerProvider.makeWatchlistEntryStore(container: modelContainer)
         )
     }
 
     var body: some View {
         ContentView()
             .environment(\.reviewRepository, reviewRepository)
+            .environment(\.watchlistRepository, watchlistRepository)
     }
 }
