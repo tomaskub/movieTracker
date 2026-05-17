@@ -1,6 +1,9 @@
+import MovieDetailFeature
 import Observation
 import SwiftUI
 import TMDBClient
+import WatchlistRepository
+import ReviewRepository
 
 protocol CatalogRouterProtocol: AnyObject {
     func navigate(to movieId: Int)
@@ -14,9 +17,19 @@ public final class CatalogRouter: CatalogRouterProtocol {
 
     private let tmdbClient: any TMDBClientProtocol
     private let presenter: CatalogPresenter
+    let movieDetailRouter: MovieDetailRouter
 
-    public init(tmdbClient: any TMDBClientProtocol) {
+    public init(
+        tmdbClient: any TMDBClientProtocol,
+        watchlistRepository: any WatchlistRepository,
+        reviewRepository: any ReviewRepository
+    ) {
         self.tmdbClient = tmdbClient
+        self.movieDetailRouter = MovieDetailRouter(
+            tmdbClient: tmdbClient,
+            watchlistRepository: watchlistRepository,
+            reviewRepository: reviewRepository
+        )
         let interactor = CatalogInteractor(tmdbClient: tmdbClient)
         let presenter = CatalogPresenter(interactor: interactor)
         self.presenter = presenter

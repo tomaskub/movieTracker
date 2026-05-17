@@ -1,7 +1,25 @@
 #if DEBUG
 import DomainModels
+import MovieDetailFeature
+import ReviewRepository
 import SwiftUI
 import TMDBClient
+import WatchlistRepository
+
+private final class PreviewWatchlistRepository: WatchlistRepository {
+    func add(movie: Movie) throws {}
+    func remove(movieId: Int) throws {}
+    func fetchAll(sortOrder: WatchlistSortOrder?) throws -> [WatchlistEntry] { [] }
+    func contains(movieId: Int) throws -> Bool { false }
+}
+
+private final class PreviewReviewRepository: ReviewRepository {
+    func create(movieId: Int, rating: Int, tags: [ReviewTag], notes: String) throws {}
+    func update(movieId: Int, rating: Int, tags: [ReviewTag], notes: String) throws {}
+    func fetch(movieId: Int) throws -> Review? { nil }
+    func delete(movieId: Int) throws {}
+    func contains(movieId: Int) throws -> Bool { false }
+}
 
 private final class MockCatalogInteractor: CatalogInteractorProtocol {
     enum Behavior {
@@ -47,7 +65,11 @@ private final class PreviewTMDBClient: TMDBClientProtocol {
 private func makePreviewView(behavior: MockCatalogInteractor.Behavior) -> some View {
     let interactor = MockCatalogInteractor(behavior: behavior)
     let presenter = CatalogPresenter(interactor: interactor)
-    let router = CatalogRouter(tmdbClient: PreviewTMDBClient())
+    let router = CatalogRouter(
+        tmdbClient: PreviewTMDBClient(),
+        watchlistRepository: PreviewWatchlistRepository(),
+        reviewRepository: PreviewReviewRepository()
+    )
     presenter.router = router
     return CatalogView(presenter: presenter, router: router)
 }
@@ -65,11 +87,7 @@ private func makePreviewView(behavior: MockCatalogInteractor.Behavior) -> some V
 }
 
 #Preview("Idle") {
-    let interactor = MockCatalogInteractor(behavior: .success(MovieFixtures.all))
-    let presenter = CatalogPresenter(interactor: interactor)
-    let router = CatalogRouter(tmdbClient: PreviewTMDBClient())
-    presenter.router = router
-    return NavigationStack {
+    NavigationStack {
         Color.clear
             .navigationTitle("Trending")
             .navigationBarTitleDisplayMode(.large)

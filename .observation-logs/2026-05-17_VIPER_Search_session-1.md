@@ -71,7 +71,7 @@ Current testing suite is missing any testing related to poster image loading. Im
 | Field | Value |
 |---|---|
 | Component targeted | Search feature |
-| Acceptance decision | As-is |
+| Acceptance decision | Accepted as-is |
 | Correction type (if edited) | N/A |
 | Lines generated (approx.) | 167 |
 | Lines retained after edits (approx.) | 167 |
@@ -102,7 +102,7 @@ Classify the model the AI produced in its first-pass output:
 | Search debounce | N | | |
 | Review form submission (step 4) | N | | |
 | SwiftData ModelContext access | N | | |
-| Navigation path mutation | Y | synchronours | |
+| Navigation path mutation | Y | synchronous | |
 
 > **Rule:** This table is locked once recorded. If a correction later changes the model at a site, record the change in the Swift 6 migration session log, not here.
 

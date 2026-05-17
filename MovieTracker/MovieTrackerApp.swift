@@ -36,8 +36,16 @@ struct MovieTrackerApp: App {
         reviewRepository = DefaultReviewRepository.make(
             entityStore: ModelContainerProvider.makeReviewStore(container: modelContainer)
         )
-        catalogRouter = CatalogRouter(tmdbClient: tmdbClient)
-        searchRouter = SearchRouter(tmdbClient: tmdbClient)
+        catalogRouter = CatalogRouter(
+            tmdbClient: tmdbClient,
+            watchlistRepository: watchlistRepository,
+            reviewRepository: reviewRepository
+        )
+        searchRouter = SearchRouter(
+            tmdbClient: tmdbClient,
+            watchlistRepository: watchlistRepository,
+            reviewRepository: reviewRepository
+        )
     }
 
     var body: some Scene {
