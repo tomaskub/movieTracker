@@ -2,4 +2,3 @@ SLASH = /
 TMDB_BASE_URL = https:$(SLASH)/api.themoviedb.org/3
 
 #include? "Secrets.xcconfig"
-TMDB_API_KEY = bae40f79d41b22fbe6e5f2c64fd373a4
