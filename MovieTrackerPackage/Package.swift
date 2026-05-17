@@ -17,6 +17,7 @@ let package = Package(
         .library(name: "WatchlistRepository", targets: ["WatchlistRepository"]),
         .library(name: "CatalogFeature", targets: ["CatalogFeature"]),
         .library(name: "SearchFeature", targets: ["SearchFeature"]),
+        .library(name: "MovieDetailFeature", targets: ["MovieDetailFeature"]),
     ],
     targets: [
         .target(name: "DesignSystem"),
@@ -43,13 +44,25 @@ let package = Package(
             dependencies: ["DomainModels", "PersistenceKit"]
         ),
         .target(
+            name: "MovieDetailFeature",
+            dependencies: [
+                "DomainModels",
+                "SharedUIComponents",
+                "DesignSystem",
+                "TMDBClient",
+                "WatchlistRepository",
+                "ReviewRepository",
+            ]
+        ),
+        .target(
             name: "CatalogFeature",
-            dependencies: ["DomainModels", "SharedUIComponents", "TMDBClient"]
+            dependencies: ["DomainModels", "SharedUIComponents", "TMDBClient", "MovieDetailFeature"]
         ),
         .target(
             name: "SearchFeature",
-            dependencies: ["DomainModels", "SharedUIComponents", "TMDBClient"]
+            dependencies: ["DomainModels", "SharedUIComponents", "TMDBClient", "MovieDetailFeature"]
         ),
+        .testTarget(name: "MovieDetailFeatureTests", dependencies: ["MovieDetailFeature", "DomainModels", "TMDBClient", "WatchlistRepository", "ReviewRepository"]),
         .testTarget(name: "CatalogFeatureTests", dependencies: ["CatalogFeature", "DomainModels", "TMDBClient"]),
         .testTarget(name: "SearchFeatureTests", dependencies: ["SearchFeature", "DomainModels", "TMDBClient"]),
         .testTarget(name: "NetworkingTests", dependencies: ["Networking"]),

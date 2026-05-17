@@ -5,7 +5,7 @@ public enum PosterSize: Sendable {
     case thumbnail
     case full
 
-    var pathSegment: String {
+    public var pathSegment: String {
         switch self {
         case .thumbnail: return "w185"
         case .full: return "w500"

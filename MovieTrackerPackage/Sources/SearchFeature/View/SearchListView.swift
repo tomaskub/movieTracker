@@ -52,7 +52,7 @@ struct SearchListView: View {
                 }
             }
             .navigationDestination(for: Int.self) { movieId in
-                Text("Movie Detail \(movieId)")
+                router.movieDetailRouter.makeView(movieId: movieId)
             }
             .sheet(isPresented: Binding(
                 get: { presenter.isFilterSheetPresented },

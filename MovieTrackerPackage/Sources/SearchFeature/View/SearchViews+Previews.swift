@@ -1,7 +1,34 @@
 #if DEBUG
 import DomainModels
+import MovieDetailFeature
+import ReviewRepository
 import SwiftUI
 import TMDBClient
+import WatchlistRepository
+
+private final class PreviewWatchlistRepository: WatchlistRepository {
+    func add(movie: Movie) throws {}
+    func remove(movieId: Int) throws {}
+    func fetchAll(sortOrder: WatchlistSortOrder?) throws -> [WatchlistEntry] { [] }
+    func contains(movieId: Int) throws -> Bool { false }
+}
+
+private final class PreviewReviewRepository: ReviewRepository {
+    func create(movieId: Int, rating: Int, tags: [ReviewTag], notes: String) throws {}
+    func update(movieId: Int, rating: Int, tags: [ReviewTag], notes: String) throws {}
+    func fetch(movieId: Int) throws -> Review? { nil }
+    func delete(movieId: Int) throws {}
+    func contains(movieId: Int) throws -> Bool { false }
+}
+
+@MainActor
+private func makeSearchRouter() -> SearchRouter {
+    SearchRouter(
+        tmdbClient: PreviewTMDBClient(),
+        watchlistRepository: PreviewWatchlistRepository(),
+        reviewRepository: PreviewReviewRepository()
+    )
+}
 
 // MARK: - Mock Interactors
 
@@ -84,7 +111,7 @@ private func makeFilterPresenter(genreState: GenreLoadState, filters: SearchFilt
         presenter: makeListPresenter(state: .idle),
         filterSheetPresenter: makeFilterPresenter(genreState: .loading),
         sortSheetPresenter: SearchSortSheetPresenter(onConfirm: { _ in }),
-        router: SearchRouter(tmdbClient: PreviewTMDBClient())
+        router: makeSearchRouter()
     )
 }
 
@@ -93,7 +120,7 @@ private func makeFilterPresenter(genreState: GenreLoadState, filters: SearchFilt
         presenter: makeListPresenter(state: .loading(query: "inception")),
         filterSheetPresenter: makeFilterPresenter(genreState: .loading),
         sortSheetPresenter: SearchSortSheetPresenter(onConfirm: { _ in }),
-        router: SearchRouter(tmdbClient: PreviewTMDBClient())
+        router: makeSearchRouter()
     )
 }
 
@@ -102,7 +129,7 @@ private func makeFilterPresenter(genreState: GenreLoadState, filters: SearchFilt
         presenter: makeListPresenter(state: .results(all: SearchFixtures.movies, filtered: SearchFixtures.movies)),
         filterSheetPresenter: makeFilterPresenter(genreState: .loading),
         sortSheetPresenter: SearchSortSheetPresenter(onConfirm: { _ in }),
-        router: SearchRouter(tmdbClient: PreviewTMDBClient())
+        router: makeSearchRouter()
     )
 }
 
@@ -111,7 +138,7 @@ private func makeFilterPresenter(genreState: GenreLoadState, filters: SearchFilt
         presenter: makeListPresenter(state: .empty(reason: .noMatches)),
         filterSheetPresenter: makeFilterPresenter(genreState: .loading),
         sortSheetPresenter: SearchSortSheetPresenter(onConfirm: { _ in }),
-        router: SearchRouter(tmdbClient: PreviewTMDBClient())
+        router: makeSearchRouter()
     )
 }
 
@@ -120,7 +147,7 @@ private func makeFilterPresenter(genreState: GenreLoadState, filters: SearchFilt
         presenter: makeListPresenter(state: .empty(reason: .filtersEliminated)),
         filterSheetPresenter: makeFilterPresenter(genreState: .loading),
         sortSheetPresenter: SearchSortSheetPresenter(onConfirm: { _ in }),
-        router: SearchRouter(tmdbClient: PreviewTMDBClient())
+        router: makeSearchRouter()
     )
 }
 
@@ -129,7 +156,7 @@ private func makeFilterPresenter(genreState: GenreLoadState, filters: SearchFilt
         presenter: makeListPresenter(state: .error(.networkFailure, query: "inception")),
         filterSheetPresenter: makeFilterPresenter(genreState: .loading),
         sortSheetPresenter: SearchSortSheetPresenter(onConfirm: { _ in }),
-        router: SearchRouter(tmdbClient: PreviewTMDBClient())
+        router: makeSearchRouter()
     )
 }
 

@@ -1,3 +1,4 @@
+import MovieDetailFeature
 import SharedUIComponents
 import SwiftUI
 import TMDBClient
@@ -17,7 +18,7 @@ struct CatalogView: View {
                 .navigationTitle("Trending")
                 .navigationBarTitleDisplayMode(.large)
                 .navigationDestination(for: Int.self) { movieId in
-                    Text("Movie Detail \(movieId)")
+                    router.movieDetailRouter.makeView(movieId: movieId)
                 }
         }
         .onAppear { presenter.handleAppear() }
