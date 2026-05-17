@@ -15,6 +15,7 @@ let package = Package(
         .library(name: "TMDBClient", targets: ["TMDBClient"]),
         .library(name: "ReviewRepository", targets: ["ReviewRepository"]),
         .library(name: "WatchlistRepository", targets: ["WatchlistRepository"]),
+        .library(name: "CatalogFeature", targets: ["CatalogFeature"]),
     ],
     targets: [
         .target(name: "DesignSystem"),
@@ -40,6 +41,11 @@ let package = Package(
             name: "WatchlistRepository",
             dependencies: ["DomainModels", "PersistenceKit"]
         ),
+        .target(
+            name: "CatalogFeature",
+            dependencies: ["DomainModels", "SharedUIComponents", "TMDBClient"]
+        ),
+        .testTarget(name: "CatalogFeatureTests", dependencies: ["CatalogFeature", "DomainModels", "TMDBClient"]),
         .testTarget(name: "NetworkingTests", dependencies: ["Networking"]),
         .testTarget(name: "PersistenceKitTests", dependencies: ["PersistenceKit"]),
         .testTarget(name: "SharedUIComponentsTests", dependencies: ["SharedUIComponents"]),
