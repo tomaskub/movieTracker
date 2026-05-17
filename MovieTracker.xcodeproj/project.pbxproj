@@ -15,6 +15,7 @@
 		D6E79C6A2F7848F600CB6C42 /* ReviewRepository in Frameworks */ = {isa = PBXBuildFile; productRef = D6E79C6B2F7848F600CB6C42 /* ReviewRepository */; };
 		D6E79C6C2F7848F600CB6C42 /* WatchlistRepository in Frameworks */ = {isa = PBXBuildFile; productRef = D6E79C6D2F7848F600CB6C42 /* WatchlistRepository */; };
 		E1AA885B85E4443D86C1B548 /* CatalogFeature in Frameworks */ = {isa = PBXBuildFile; productRef = A73096D37AC046279263FFA9 /* CatalogFeature */; };
+		F1A2B3C4D5E6F7A8B9C0D1E2 /* SearchFeature in Frameworks */ = {isa = PBXBuildFile; productRef = F1A2B3C4D5E6F7A8B9C0D1E3 /* SearchFeature */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +75,7 @@
 				484C11C27312435A905953F6 /* Networking in Frameworks */,
 				BDBEDEE6D6E9474DB15439CD /* TMDBClient in Frameworks */,
 				E1AA885B85E4443D86C1B548 /* CatalogFeature in Frameworks */,
+				F1A2B3C4D5E6F7A8B9C0D1E2 /* SearchFeature in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -154,6 +156,7 @@
 				807B731395BE410296BD195C /* Networking */,
 				AE79959BC24B4E5196DD14A0 /* TMDBClient */,
 				A73096D37AC046279263FFA9 /* CatalogFeature */,
+				F1A2B3C4D5E6F7A8B9C0D1E3 /* SearchFeature */,
 			);
 			productName = MovieTracker;
 			productReference = D604EE942F7847C40042CF38 /* MovieTracker.app */;
@@ -679,6 +682,10 @@
 		D6E79C6D2F7848F600CB6C42 /* WatchlistRepository */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = WatchlistRepository;
+		};
+		F1A2B3C4D5E6F7A8B9C0D1E3 /* SearchFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SearchFeature;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

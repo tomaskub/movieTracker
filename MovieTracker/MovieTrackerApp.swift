@@ -1,7 +1,9 @@
 import CatalogFeature
+import DesignSystem
 import Networking
 import PersistenceKit
 import ReviewRepository
+import SearchFeature
 import SwiftData
 import SwiftUI
 import TMDBClient
@@ -14,6 +16,7 @@ struct MovieTrackerApp: App {
     private let watchlistRepository: DefaultWatchlistRepository
     private let reviewRepository: DefaultReviewRepository
     private let catalogRouter: CatalogRouter
+    private let searchRouter: SearchRouter
 
     init() {
         do {
@@ -34,11 +37,20 @@ struct MovieTrackerApp: App {
             entityStore: ModelContainerProvider.makeReviewStore(container: modelContainer)
         )
         catalogRouter = CatalogRouter(tmdbClient: tmdbClient)
+        searchRouter = SearchRouter(tmdbClient: tmdbClient)
     }
 
     var body: some Scene {
         WindowGroup {
-            catalogRouter.makeRootView()
+            TabView {
+                catalogRouter.makeRootView()
+                    .tabItem { Label("Trending", systemImage: DSIcon.catalogTab.rawValue) }
+                    .tag(0)
+
+                searchRouter.makeRootView()
+                    .tabItem { Label("Search", systemImage: DSIcon.searchTab.rawValue) }
+                    .tag(1)
+            }
         }
     }
 }
