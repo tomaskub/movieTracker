@@ -7,13 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		484C11C27312435A905953F6 /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = 807B731395BE410296BD195C /* Networking */; };
+		BDBEDEE6D6E9474DB15439CD /* TMDBClient in Frameworks */ = {isa = PBXBuildFile; productRef = AE79959BC24B4E5196DD14A0 /* TMDBClient */; };
 		D6E79C5F2F7848F500CB6C42 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = D6E79C5E2F7848F500CB6C42 /* DesignSystem */; };
 		D6E79C602F7848F500CB6C42 /* SharedUIComponents in Frameworks */ = {isa = PBXBuildFile; productRef = D6E79C612F7848F500CB6C42 /* SharedUIComponents */; };
 		D6E79C682F7848F600CB6C42 /* PersistenceKit in Frameworks */ = {isa = PBXBuildFile; productRef = D6E79C692F7848F600CB6C42 /* PersistenceKit */; };
 		D6E79C6A2F7848F600CB6C42 /* ReviewRepository in Frameworks */ = {isa = PBXBuildFile; productRef = D6E79C6B2F7848F600CB6C42 /* ReviewRepository */; };
 		D6E79C6C2F7848F600CB6C42 /* WatchlistRepository in Frameworks */ = {isa = PBXBuildFile; productRef = D6E79C6D2F7848F600CB6C42 /* WatchlistRepository */; };
-		484C11C27312435A905953F6 /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = 807B731395BE410296BD195C /* Networking */; };
-		BDBEDEE6D6E9474DB15439CD /* TMDBClient in Frameworks */ = {isa = PBXBuildFile; productRef = AE79959BC24B4E5196DD14A0 /* TMDBClient */; };
+		E1AA885B85E4443D86C1B548 /* CatalogFeature in Frameworks */ = {isa = PBXBuildFile; productRef = A73096D37AC046279263FFA9 /* CatalogFeature */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,11 +35,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0CBE410BC04C4144BCFDA669 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = SOURCE_ROOT; };
+		0CBE410CC04C4144BCFDA670 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; };
 		D604EE942F7847C40042CF38 /* MovieTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MovieTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D604EEA32F7847C50042CF38 /* MovieTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MovieTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D604EEAD2F7847C50042CF38 /* MovieTrackerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MovieTrackerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6E79C5C2F7848E600CB6C42 /* MovieTrackerPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = MovieTrackerPackage; sourceTree = "<group>"; };
-		0CBE410BC04C4144BCFDA669 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -71,6 +73,7 @@
 				D6E79C6C2F7848F600CB6C42 /* WatchlistRepository in Frameworks */,
 				484C11C27312435A905953F6 /* Networking in Frameworks */,
 				BDBEDEE6D6E9474DB15439CD /* TMDBClient in Frameworks */,
+				E1AA885B85E4443D86C1B548 /* CatalogFeature in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,6 +102,7 @@
 				D604EE962F7847C40042CF38 /* MovieTracker */,
 				D604EEA62F7847C50042CF38 /* MovieTrackerTests */,
 				D604EEB02F7847C50042CF38 /* MovieTrackerUITests */,
+				0CBE410CC04C4144BCFDA670 /* Info.plist */,
 				D6E79C5D2F7848F500CB6C42 /* Frameworks */,
 				D604EE952F7847C40042CF38 /* Products */,
 			);
@@ -128,6 +132,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D604EEB72F7847C50042CF38 /* Build configuration list for PBXNativeTarget "MovieTracker" */;
 			buildPhases = (
+				D65E71232FB91559002AE7F3 /* Inject API Key */,
 				D604EE902F7847C40042CF38 /* Sources */,
 				D604EE912F7847C40042CF38 /* Frameworks */,
 				D604EE922F7847C40042CF38 /* Resources */,
@@ -148,6 +153,7 @@
 				D6E79C6D2F7848F600CB6C42 /* WatchlistRepository */,
 				807B731395BE410296BD195C /* Networking */,
 				AE79959BC24B4E5196DD14A0 /* TMDBClient */,
+				A73096D37AC046279263FFA9 /* CatalogFeature */,
 			);
 			productName = MovieTracker;
 			productReference = D604EE942F7847C40042CF38 /* MovieTracker.app */;
@@ -267,6 +273,28 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		D65E71232FB91559002AE7F3 /* Inject API Key */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Inject API Key";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/Secrets.xcconfig",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "XCCONFIG=\"$SRCROOT/Secrets.xcconfig\"\nif grep -q \"^TMDB_API_KEY\" \"$XCCONFIG\" 2>/dev/null; then\n    sed -i '' '/^TMDB_API_KEY/d' \"$XCCONFIG\"\nfi\necho \"TMDB_API_KEY = $TMDB_API_KEY_VALUE\" >> \"$XCCONFIG\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		D604EE902F7847C40042CF38 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -343,7 +371,7 @@
 				DEVELOPMENT_TEAM = 73N45UT488;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -407,7 +435,7 @@
 				DEVELOPMENT_TEAM = 73N45UT488;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -436,14 +464,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 73N45UT488;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_TMDBAPIKey = "$(TMDB_API_KEY)";
-				INFOPLIST_KEY_TMDBBaseURL = "$(TMDB_BASE_URL)";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -476,14 +498,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 73N45UT488;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_TMDBAPIKey = "$(TMDB_API_KEY)";
-				INFOPLIST_KEY_TMDBBaseURL = "$(TMDB_BASE_URL)";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -632,6 +648,18 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		807B731395BE410296BD195C /* Networking */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Networking;
+		};
+		A73096D37AC046279263FFA9 /* CatalogFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CatalogFeature;
+		};
+		AE79959BC24B4E5196DD14A0 /* TMDBClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TMDBClient;
+		};
 		D6E79C5E2F7848F500CB6C42 /* DesignSystem */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = DesignSystem;
@@ -651,14 +679,6 @@
 		D6E79C6D2F7848F600CB6C42 /* WatchlistRepository */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = WatchlistRepository;
-		};
-		807B731395BE410296BD195C /* Networking */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Networking;
-		};
-		AE79959BC24B4E5196DD14A0 /* TMDBClient */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = TMDBClient;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

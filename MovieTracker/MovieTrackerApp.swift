@@ -1,3 +1,4 @@
+import CatalogFeature
 import Networking
 import PersistenceKit
 import ReviewRepository
@@ -12,6 +13,7 @@ struct MovieTrackerApp: App {
     private let tmdbClient: TMDBClient
     private let watchlistRepository: DefaultWatchlistRepository
     private let reviewRepository: DefaultReviewRepository
+    private let catalogRouter: CatalogRouter
 
     init() {
         do {
@@ -31,11 +33,12 @@ struct MovieTrackerApp: App {
         reviewRepository = DefaultReviewRepository.make(
             entityStore: ModelContainerProvider.makeReviewStore(container: modelContainer)
         )
+        catalogRouter = CatalogRouter(tmdbClient: tmdbClient)
     }
 
     var body: some Scene {
         WindowGroup {
-            Text("MovieTracker")
+            catalogRouter.makeRootView()
         }
     }
 }

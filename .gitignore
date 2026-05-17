@@ -59,3 +59,6 @@ Icon
 __pycache__/
 *.pyc
 .aider*
+
+# Secrets
+Secrets.xcconfig

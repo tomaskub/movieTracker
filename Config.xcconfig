@@ -1,5 +1,4 @@
-TMDB_BASE_URL = https://api.themoviedb.org/3
-TMDB_API_KEY = $(TMDB_API_KEY_VALUE)
+SLASH = /
+TMDB_BASE_URL = https:$(SLASH)/api.themoviedb.org/3
 
-INFOPLIST_KEY_TMDBBaseURL = $(TMDB_BASE_URL)
-INFOPLIST_KEY_TMDBAPIKey = $(TMDB_API_KEY)
+#include? "Secrets.xcconfig"
