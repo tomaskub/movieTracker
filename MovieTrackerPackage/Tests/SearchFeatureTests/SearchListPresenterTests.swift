@@ -1,7 +1,9 @@
 import DomainModels
 import Foundation
+import SharedUIComponents
 import Testing
 import TMDBClient
+import UIKit
 @testable import SearchFeature
 
 @MainActor
@@ -9,10 +11,26 @@ struct SearchListPresenterTests {
 
     // MARK: - Helpers
 
-    private func makePresenter(behavior: SpySearchListInteractor.Behavior = .success(SearchFixtures.movies)) -> (SearchListPresenter, SpySearchListInteractor) {
-        let interactor = SpySearchListInteractor(behavior: behavior)
+    private func makePresenter(
+        behavior: SpySearchListInteractor.Behavior = .success(SearchFixtures.movies),
+        posterBehavior: SpySearchListInteractor.PosterBehavior = .failure(.networkFailure)
+    ) -> (SearchListPresenter, SpySearchListInteractor) {
+        let interactor = SpySearchListInteractor(behavior: behavior, posterBehavior: posterBehavior)
         let presenter = SearchListPresenter(interactor: interactor)
         return (presenter, interactor)
+    }
+
+    private func validImageData() -> Data {
+        UIGraphicsImageRenderer(size: CGSize(width: 1, height: 1)).pngData { context in
+            UIColor.red.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 1, height: 1))
+        }
+    }
+
+    private func awaitPosterTasks(_ presenter: SearchListPresenter) async {
+        for task in presenter.posterTasks.values {
+            await task.value
+        }
     }
 
     // MARK: - Submit search
@@ -183,6 +201,125 @@ struct SearchListPresenterTests {
             Issue.record("Expected .results")
         }
     }
+
+    // MARK: - Poster image loading
+
+    @Test func posterLoad_moviesWithPosterPath_setPlaceholderBeforeTaskCompletes() async {
+        let movies = [
+            Movie(id: 1, title: "A", overview: "", releaseDate: "2020-01-01", genreIds: [], posterPath: "/a.jpg", voteAverage: 5.0),
+            Movie(id: 2, title: "B", overview: "", releaseDate: "2021-01-01", genreIds: [], posterPath: "/b.jpg", voteAverage: 6.0),
+        ]
+        let (presenter, _) = makePresenter(behavior: .success(movies), posterBehavior: .loading)
+        presenter.query = "test"
+        presenter.submitSearch()
+        await presenter.searchTask?.value
+
+        #expect(presenter.imageStates[1]?.isPlaceholder == true)
+        #expect(presenter.imageStates[2]?.isPlaceholder == true)
+    }
+
+    @Test func posterLoad_movieWithNilPosterPath_notAddedToImageStates() async {
+        let movies = [
+            Movie(id: 1, title: "A", overview: "", releaseDate: "2020-01-01", genreIds: [], posterPath: nil, voteAverage: 5.0),
+        ]
+        let (presenter, _) = makePresenter(behavior: .success(movies))
+        presenter.query = "test"
+        presenter.submitSearch()
+        await presenter.searchTask?.value
+        await awaitPosterTasks(presenter)
+
+        #expect(presenter.imageStates.isEmpty)
+    }
+
+    @Test func posterLoad_success_transitionsToImage() async {
+        let movies = [
+            Movie(id: 1, title: "A", overview: "", releaseDate: "2020-01-01", genreIds: [], posterPath: "/a.jpg", voteAverage: 5.0),
+        ]
+        let (presenter, _) = makePresenter(behavior: .success(movies), posterBehavior: .success(validImageData()))
+        presenter.query = "test"
+        presenter.submitSearch()
+        await presenter.searchTask?.value
+        await awaitPosterTasks(presenter)
+
+        #expect(presenter.imageStates[1]?.isImage == true)
+    }
+
+    @Test func posterLoad_failure_keepsPlaceholder() async {
+        let movies = [
+            Movie(id: 1, title: "A", overview: "", releaseDate: "2020-01-01", genreIds: [], posterPath: "/a.jpg", voteAverage: 5.0),
+        ]
+        let (presenter, _) = makePresenter(behavior: .success(movies), posterBehavior: .failure(.networkFailure))
+        presenter.query = "test"
+        presenter.submitSearch()
+        await presenter.searchTask?.value
+        await awaitPosterTasks(presenter)
+
+        #expect(presenter.imageStates[1]?.isPlaceholder == true)
+    }
+
+    @Test func posterLoad_invalidImageData_keepsPlaceholder() async {
+        let movies = [
+            Movie(id: 1, title: "A", overview: "", releaseDate: "2020-01-01", genreIds: [], posterPath: "/a.jpg", voteAverage: 5.0),
+        ]
+        let (presenter, _) = makePresenter(behavior: .success(movies), posterBehavior: .success(Data()))
+        presenter.query = "test"
+        presenter.submitSearch()
+        await presenter.searchTask?.value
+        await awaitPosterTasks(presenter)
+
+        #expect(presenter.imageStates[1]?.isPlaceholder == true)
+    }
+
+    @Test func posterLoad_mixedPosterPaths_onlyPopulatesMoviesWithPath() async {
+        let movies = [
+            Movie(id: 1, title: "A", overview: "", releaseDate: "2020-01-01", genreIds: [], posterPath: "/a.jpg", voteAverage: 5.0),
+            Movie(id: 2, title: "B", overview: "", releaseDate: "2021-01-01", genreIds: [], posterPath: nil, voteAverage: 6.0),
+            Movie(id: 3, title: "C", overview: "", releaseDate: "2022-01-01", genreIds: [], posterPath: "/c.jpg", voteAverage: 7.0),
+        ]
+        let (presenter, interactor) = makePresenter(behavior: .success(movies), posterBehavior: .success(validImageData()))
+        presenter.query = "test"
+        presenter.submitSearch()
+        await presenter.searchTask?.value
+        await awaitPosterTasks(presenter)
+
+        #expect(presenter.imageStates[1]?.isImage == true)
+        #expect(presenter.imageStates[2] == nil)
+        #expect(presenter.imageStates[3]?.isImage == true)
+        #expect(interactor.posterFetchCallCount == 2)
+        #expect(Set(interactor.fetchedPosterPaths) == ["/a.jpg", "/c.jpg"])
+    }
+
+    @Test func posterLoad_newSearch_resetsImageStates() async {
+        let movies = [
+            Movie(id: 1, title: "A", overview: "", releaseDate: "2020-01-01", genreIds: [], posterPath: "/a.jpg", voteAverage: 5.0),
+        ]
+        let (presenter, _) = makePresenter(behavior: .success(movies), posterBehavior: .success(validImageData()))
+        presenter.query = "first"
+        presenter.submitSearch()
+        await presenter.searchTask?.value
+        await awaitPosterTasks(presenter)
+        #expect(!presenter.imageStates.isEmpty)
+
+        presenter.query = "second"
+        presenter.submitSearch()
+
+        #expect(presenter.imageStates.isEmpty)
+    }
+
+    @Test func posterLoad_fetchedPathsMatchMoviePosterPaths() async {
+        let movies = [
+            Movie(id: 1, title: "A", overview: "", releaseDate: "2020-01-01", genreIds: [], posterPath: "/poster1.jpg", voteAverage: 5.0),
+            Movie(id: 2, title: "B", overview: "", releaseDate: "2021-01-01", genreIds: [], posterPath: "/poster2.jpg", voteAverage: 6.0),
+        ]
+        let (presenter, interactor) = makePresenter(behavior: .success(movies), posterBehavior: .failure(.networkFailure))
+        presenter.query = "test"
+        presenter.submitSearch()
+        await presenter.searchTask?.value
+        await awaitPosterTasks(presenter)
+
+        #expect(interactor.posterFetchCallCount == 2)
+        #expect(Set(interactor.fetchedPosterPaths) == ["/poster1.jpg", "/poster2.jpg"])
+    }
 }
 
 // MARK: - Spy
@@ -194,11 +331,21 @@ final class SpySearchListInteractor: SearchListInteractorProtocol {
         case loading
     }
 
-    var behavior: Behavior
-    private(set) var searchCallCount = 0
+    enum PosterBehavior {
+        case success(Data)
+        case failure(TMDBError)
+        case loading
+    }
 
-    init(behavior: Behavior) {
+    var behavior: Behavior
+    var posterBehavior: PosterBehavior
+    private(set) var searchCallCount = 0
+    private(set) var posterFetchCallCount = 0
+    private(set) var fetchedPosterPaths: [String] = []
+
+    init(behavior: Behavior, posterBehavior: PosterBehavior = .failure(.networkFailure)) {
         self.behavior = behavior
+        self.posterBehavior = posterBehavior
     }
 
     func searchMovies(query: String) async throws(TMDBError) -> [Movie] {
@@ -213,7 +360,15 @@ final class SpySearchListInteractor: SearchListInteractorProtocol {
     }
 
     func fetchPosterData(posterPath: String) async throws(TMDBError) -> Data {
-        throw .networkFailure
+        posterFetchCallCount += 1
+        fetchedPosterPaths.append(posterPath)
+        switch posterBehavior {
+        case .success(let data): return data
+        case .failure(let error): throw error
+        case .loading:
+            await withCheckedContinuation { (_: CheckedContinuation<Void, Never>) in }
+            return Data()
+        }
     }
 }
 
@@ -224,4 +379,11 @@ private extension SearchState {
     var isLoading: Bool { if case .loading = self { true } else { false } }
     var isResults: Bool { if case .results = self { true } else { false } }
     var isError: Bool { if case .error = self { true } else { false } }
+}
+
+// MARK: - MovieCardView.ImageState helpers
+
+private extension MovieCardView.ImageState {
+    var isPlaceholder: Bool { if case .placeholder = self { true } else { false } }
+    var isImage: Bool { if case .image = self { true } else { false } }
 }

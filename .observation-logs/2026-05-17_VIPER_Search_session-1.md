@@ -57,6 +57,7 @@ Your task is to implement Search feature /ios-feature-implementation
 - Issues with Router composition - stack is created in `makeRootView()` function, thats called to create view. 
 - Issues with testing and `searchTask` - task was constructed as private property, leading to tests including a `Task.sleep` call.
 - Tests written with `Testing` despite tech-stack document specifying XCTest as the framework.
+- Model reached over 80% context during the prompt.
 
 ---
 
@@ -64,19 +65,20 @@ Your task is to implement Search feature /ios-feature-implementation
 
 **Prompt text (verbatim):**
 ```
-<!-- paste exact prompt here -->
+Current testing suite is missing any testing related to poster image loading. Implement missing testing suite. 
 ```
 
 | Field | Value |
 |---|---|
-| Component targeted | |
-| Acceptance decision | |
-| Correction type (if edited) | |
-| Lines generated (approx.) | |
-| Lines retained after edits (approx.) | |
+| Component targeted | Search feature |
+| Acceptance decision | As-is |
+| Correction type (if edited) | N/A |
+| Lines generated (approx.) | 167 |
+| Lines retained after edits (approx.) | 167 |
 
 **Notes:**
-
+- Model context was compressed using built in cursor command, resulting in 10% fill
+- Model adjusted the remaining task to `internal` and wrote tests without `Task.sleep`
 ---
 
 <!-- Duplicate the prompt block above for each additional prompt -->
@@ -93,14 +95,14 @@ Classify the model the AI produced in its first-pass output:
 
 | Site | Covered this session | Model produced (first-pass) | Notes |
 |---|---|---|---|
-| TMDB API call (catalog, detail, search) | Y / N | | |
-| Genre list fetch (filter UI) | Y / N | | |
-| Watchlist write | Y / N | | |
-| Concurrent watchlist add (catalog + detail) | Y / N | | |
-| Search debounce | Y / N | | |
-| Review form submission (step 4) | Y / N | | |
-| SwiftData ModelContext access | Y / N | | |
-| Navigation path mutation | Y / N | | |
+| TMDB API call (catalog, detail, search) | Y |  async/await | |
+| Genre list fetch (filter UI) | Y | async/await | |
+| Watchlist write | N | | |
+| Concurrent watchlist add (catalog + detail) | N | | |
+| Search debounce | N | | |
+| Review form submission (step 4) | N | | |
+| SwiftData ModelContext access | N | | |
+| Navigation path mutation | Y | synchronours | |
 
 > **Rule:** This table is locked once recorded. If a correction later changes the model at a site, record the change in the Swift 6 migration session log, not here.
 
@@ -112,33 +114,36 @@ Complete only during test generation sessions. Mark entire section N/A if this s
 
 | Scenario # | Scenario description | Authorship | AI assertion quality |
 |---|---|---|---|
-| | | <!-- AI unprompted / AI prompted / Manual --> | <!-- Correct / Shallow / Incorrect / N/A --> |
-| | | | |
-| | | | |
-| 1 | submitSearch_withResults_transitionsToResults() async 
-| 2 | submitSearch_withEmptyArray_transitionsToNoMatches() async 
-| 3 | submitSearch_withError_transitionsToError() async 
-| 4 | submitSearch_withWhitespaceOnly_doesNotSearch() async 
-| 5 | retrySearch_reissuesSearch() async 
-| 6 | commitFilters_genreFilter_narrowsResults() async 
-| 7 | commitFilters_allEliminated_transitionsToFiltersEliminated() async 
-| 8 | clearActiveFilters_resetsAndRecomputes() async 
-| 9 | commitSort_title_sortedAlphabetically() async 
-| 10 | commitSort_releaseDate_sortedDescending() async 
-| 11 | commitSort_voteAverage_sortedDescending() async 
-| 12 | viewAppeared_triggersGenreFetch() async 
-| 13 | viewAppeared_success_setsLoadedState() async 
-| 14 | viewAppeared_failure_setsErrorState() async 
-| 15 | retryGenreFetch_callsFetchWithForceTrue() async 
-| 16 | updateFromYear_belowBound_setsError() 
-| 17 | updateFromYear_aboveCurrentYear_setsError() 
-| 18 | updateFromYear_atLowerBound_noError() 
-| 19 | updateYears_fromGreaterThanTo_setsRangeError() 
-| 20 | updateYears_fromEqualToTo_noRangeError() 
-| 21 | clearAllFilters_resetsState() 
-| 22 | confirm_callsOnConfirmWithCurrentDraft() 
-
-
+| 1 | submitSearch_withResults_transitionsToResults | AI unprompted | Correct |
+| 2 | submitSearch_withEmptyArray_transitionsToNoMatches | AI unprompted | Correct |
+| 3 | submitSearch_withError_transitionsToError | AI unprompted | Correct |
+| 4 | submitSearch_withWhitespaceOnly_doesNotSearch | AI unprompted | Correct |
+| 5 | retrySearch_reissuesSearch | AI unprompted | Correct |
+| 6 | commitFilters_genreFilter_narrowsResults | AI unprompted | Correct |
+| 7 | commitFilters_allEliminated_transitionsToFiltersEliminated | AI unprompted | Correct |
+| 8 | clearActiveFilters_resetsAndRecomputes | AI unprompted | Correct |
+| 9 | commitSort_title_sortedAlphabetically | AI unprompted | Correct |
+| 10 | commitSort_releaseDate_sortedDescending | AI unprompted | Correct |
+| 11 | commitSort_voteAverage_sortedDescending | AI unprompted | Correct |
+| 12 | viewAppeared_triggersGenreFetch | AI unprompted | Correct |
+| 13 | viewAppeared_success_setsLoadedState | AI unprompted | Correct |
+| 14 | viewAppeared_failure_setsErrorState | AI unprompted | Correct |
+| 15 | retryGenreFetch_callsFetchWithForceTrue | AI unprompted | Correct |
+| 16 | updateFromYear_belowBound_setsError | AI unprompted | Correct |
+| 17 | updateFromYear_aboveCurrentYear_setsError | AI unprompted | Correct |
+| 18 | updateFromYear_atLowerBound_noError | AI unprompted | Correct |
+| 19 | updateYears_fromGreaterThanTo_setsRangeError | AI unprompted | Correct |
+| 20 | updateYears_fromEqualToTo_noRangeError | AI unprompted | Correct |
+| 21 | clearAllFilters_resetsState | AI unprompted | Correct |
+| 22 | confirm_callsOnConfirmWithCurrentDraft | AI unprompted | Correct |
+| 23 | posterLoad_moviesWithPosterPath_setPlaceholderBeforeTaskCompletes | AI prompted | Correct |
+| 24 | posterLoad_movieWithNilPosterPath_notAddedToImageStates | AI prompted | Correct |
+| 25 | posterLoad_success_transitionsToImage | AI prompted | Correct |
+| 26 | posterLoad_failure_keepsPlaceholder | AI prompted | Correct |
+| 27 | posterLoad_invalidImageData_keepsPlaceholder | AI prompted | Correct |
+| 28 | posterLoad_mixedPosterPaths_onlyPopulatesMoviesWithPath | AI prompted | Correct |
+| 29 | posterLoad_newSearch_resetsImageStates | AI prompted | Correct |
+| 30 | posterLoad_fetchedPathsMatchMoviePosterPaths | AI prompted | Correct |
 
 Authorship definitions:
 - **AI unprompted** — AI generated the test without being explicitly asked
@@ -158,11 +163,9 @@ Record after each build attempt in this session.
 
 | Attempt | Result | Error count | Notes |
 |---|---|---|---|
-| 1 | Clean / Errors | | |
-| 2 | Clean / Errors | | |
-| 3 | Clean / Errors | | |
+| 1 | Clean | | |
 
-Final build result this session: **Clean / Errors outstanding**
+Final build result this session: **Clean**
 
 Outstanding errors carried to next session (if any):
 -

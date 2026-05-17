@@ -29,7 +29,7 @@ final class SearchListPresenter {
     private var allMovies: [Movie] = []
 
     nonisolated(unsafe) var searchTask: Task<Void, Never>?
-    nonisolated(unsafe) private var posterTasks: [Int: Task<Void, Never>] = [:]
+    nonisolated(unsafe) var posterTasks: [Int: Task<Void, Never>] = [:]
 
     init(interactor: any SearchListInteractorProtocol) {
         self.interactor = interactor
